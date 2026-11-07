@@ -55,7 +55,7 @@ export async function Footer() {
         </div>
 
         <p className="mt-12 border-t border-borda pt-6 text-xs text-texto-suave">
-          {ano} {settings.nome}. Todos os direitos reservados.
+          &copy; {ano} {settings.nome}. Todos os direitos reservados.
         </p>
       </Container>
     </footer>
