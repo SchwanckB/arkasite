@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+/*
+  ARKA TECHNOLOGIES - tokens de design.
+  Fonte unica da verdade visual: docs/BRAND.md.
+  Nao adicione cores fora desta paleta. Ver "Guarda-corpos de marca" em BRAND.md.
+*/
+
+@theme {
+  /* ---- Paleta oficial (brand board, confirmada por amostragem de pixel) ---- */
+  --color-off-white: #f4f3f0;
+  --color-musgo: #4e5a46;
+  --color-salvia: #7d8b79;
+  --color-areia: #dad2c2;
+  --color-grafite: #252626;
+
+  /* Variacoes derivadas, apenas para estado e profundidade (nunca novas matizes) */
+  --color-musgo-escuro: #3c4636;
+  --color-musgo-claro: #637058;
+  --color-salvia-claro: #9aa597;
+  --color-areia-claro: #e8e3d8;
+  --color-grafite-suave: #3a3b3b;
+
+  /* ---- Papeis semanticos ---- */
+  --color-fundo: var(--color-off-white);
+  --color-fundo-alt: var(--color-areia-claro);
+  --color-fundo-escuro: var(--color-grafite);
+  --color-superficie: #ffffff;
+  --color-texto: var(--color-grafite);
+  --color-texto-suave: #5b5c5c;
+  --color-texto-invertido: var(--color-off-white);
+  --color-destaque: var(--color-musgo);
+  --color-destaque-suave: var(--color-salvia);
+  --color-borda: #e2ded4;
+  --color-borda-forte: var(--color-areia);
+
+  /* ---- Tipografia ---- */
+  --font-display: var(--font-arka-display), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-arka-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- Raios ---- */
+  --radius-marca: 0.75rem;
+  --radius-marca-lg: 1.25rem;
+
+  /* ---- Sombras (discretas, nunca pretas puras) ---- */
+  --shadow-suave: 0 1px 2px rgb(37 38 38 / 0.04), 0 2px 8px rgb(37 38 38 / 0.04);
+  --shadow-media: 0 2px 4px rgb(37 38 38 / 0.04), 0 8px 24px rgb(37 38 38 / 0.08);
+  --shadow-alta: 0 4px 8px rgb(37 38 38 / 0.05), 0 16px 48px rgb(37 38 38 / 0.12);
+
+  /* ---- Movimento (espelha src/lib/motion.ts - mantenha os dois em sincronia) ---- */
+  --ease-marca: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-suave: cubic-bezier(0.4, 0, 0.2, 1);
+  --duracao-rapida: 180ms;
+  --duracao-media: 380ms;
+  --duracao-secao: 700ms;
+
+  /* ---- Container ---- */
+  --largura-conteudo: 80rem;
+}
+
+/* Largura base da pagina; o <Container /> consome este token. */
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-fundo);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+/* Titulos usam a fonte display por padrao. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Foco visivel e consistente em toda a interface. */
+:focus-visible {
+  outline: 2px solid var(--color-musgo);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background-color: var(--color-salvia);
+  color: var(--color-off-white);
+}
+
+/*
+  Acessibilidade: respeitamos prefers-reduced-motion globalmente.
+  O hook useReducedMotion em src/lib/motion.ts cuida das animacoes em JS.
+*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
