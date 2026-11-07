@@ -33,7 +33,7 @@ export async function Diferenciais() {
       >
         {itens.map((item) => (
           <RevealItem key={item.id}>
-            <Card interativo className="h-full">
+            <Card interativo className="flex h-full flex-col">
               <Icone nome={item.icone} tamanho={28} className="text-musgo" />
               <h3 className="mt-5 font-display text-lg text-grafite">
                 {item.titulo}
@@ -41,6 +41,20 @@ export async function Diferenciais() {
               <p className="mt-2 text-sm leading-relaxed text-texto-suave">
                 {item.descricao}
               </p>
+
+              {/* Prova concreta do diferencial, escrita pela Parte C. */}
+              {item.apoio ? (
+                <div className="mt-auto flex items-start gap-2 border-t border-borda pt-4">
+                  <Icone
+                    nome="Check"
+                    tamanho={14}
+                    className="mt-0.5 shrink-0 text-salvia"
+                  />
+                  <p className="text-xs leading-relaxed text-texto-suave">
+                    {item.apoio}
+                  </p>
+                </div>
+              ) : null}
             </Card>
           </RevealItem>
         ))}

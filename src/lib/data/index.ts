@@ -36,6 +36,7 @@ import type {
   SectionId,
   Service,
   SiteSettings,
+  TrackingSettings,
 } from "./types";
 
 export * from "./types";
@@ -175,5 +176,40 @@ export async function createLead(_entrada: LeadInput): Promise<LeadResult> {
     reason: "not_configured",
     mensagem:
       "O banco de dados ainda nao foi configurado. Ver docs/SETUP-SUPABASE.md (Parte 7).",
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Rastreamento                                                        */
+/* ------------------------------------------------------------------ */
+
+/** Devolve null para string vazia ou so espacos. */
+function ouNulo(valor: string | undefined): string | null {
+  const limpo = valor?.trim();
+  return limpo ? limpo : null;
+}
+
+/**
+ * Identificadores de Google Ads / Analytics / Tag Manager.
+ *
+ * Nesta versao le das variaveis de ambiente. A Parte 7 passa a ler da
+ * chave "rastreamento" de site_settings, caindo para as variaveis de
+ * ambiente quando o banco nao tiver valor - assim o dono pode editar pelo
+ * painel sem precisar de novo deploy.
+ *
+ * Nao usa "use cache": sao variaveis de ambiente, ja sao estaticas no build.
+ */
+export async function getTracking(): Promise<TrackingSettings> {
+  const googleAdsId = ouNulo(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID);
+  const googleAnalyticsId = ouNulo(process.env.NEXT_PUBLIC_GA_ID);
+  const gtmId = ouNulo(process.env.NEXT_PUBLIC_GTM_ID);
+
+  return {
+    googleAdsId,
+    googleAdsConversao: ouNulo(process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSAO),
+    googleAnalyticsId,
+    gtmId,
+    // Desligado explicitamente por NEXT_PUBLIC_RASTREAMENTO_ATIVO=false.
+    ativo: process.env.NEXT_PUBLIC_RASTREAMENTO_ATIVO !== "false",
   };
 }

@@ -1,16 +1,18 @@
 /**
- * ESQUELETO - propriedade da PARTE 1 (Header + Hero).
+ * Hero - PARTE 1 (Header + Hero).
  *
- * A Parte 0 entrega esta versao funcional para o site ja subir. A Parte 1
- * substitui o conteudo visual mantendo: o nome do arquivo, o export <Hero />
- * e o consumo de dados via @/lib/data.
+ * A peca mais importante do site: primeira coisa que o visitante ve. Textos
+ * vem de getSection("hero"); o unico texto de interface e o rotulo de
+ * fallback dos botoes, que vem de brand.microcopy (mesma convencao da CTA).
  */
 
+import { brand } from "@/content/brand";
 import { getSection, getSiteSettings } from "@/lib/data";
 import { BotaoLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { ArkaSymbol } from "@/components/brand/Logo";
+import { HeroBackdrop } from "@/components/sections/hero/HeroBackdrop";
 
 export async function Hero() {
   const [secao, settings] = await Promise.all([
@@ -27,46 +29,66 @@ export async function Hero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden bg-fundo pb-20 pt-32 sm:pb-28 sm:pt-40"
+      className="relative isolate overflow-hidden bg-fundo pb-20 pt-32 sm:pb-28 sm:pt-40"
     >
+      {/* Padrao visual de apoio: bloco musgo solido, atras do conteudo,
+          opacidade baixa (ver docs/BRAND.md). Unico padrao desta tela. */}
+      <HeroBackdrop />
+
       <Container className="relative">
-        <Reveal comoLista intervalo={0.08} className="max-w-3xl">
-          <RevealItem className="mb-8">
-            <ArkaSymbol variante="simples" tamanho={64} alt="" prioridade />
-          </RevealItem>
+        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+          <Reveal comoLista intervalo={0.08} className="max-w-xl">
+            <RevealItem className="mb-8">
+              <ArkaSymbol variante="simples" tamanho={56} alt="" prioridade />
+            </RevealItem>
 
-          <RevealItem
-            as="p"
-            className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-salvia"
-          >
-            {secao.subtitulo ?? settings.tagline}
-          </RevealItem>
-
-          <RevealItem
-            as="h1"
-            className="text-balance font-display text-4xl leading-[1.1] text-grafite sm:text-5xl lg:text-6xl"
-          >
-            {secao.titulo}
-          </RevealItem>
-
-          {secao.descricao ? (
             <RevealItem
               as="p"
-              className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-texto-suave"
+              className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-salvia"
             >
-              {secao.descricao}
+              {secao.subtitulo ?? settings.tagline}
             </RevealItem>
-          ) : null}
 
-          <RevealItem className="mt-10 flex flex-wrap gap-3">
-            <BotaoLink href="#contato" tamanho="lg">
-              {conteudo?.botaoPrimario ?? "Falar com especialista"}
-            </BotaoLink>
-            <BotaoLink href="#portfolio" variante="secundario" tamanho="lg">
-              {conteudo?.botaoSecundario ?? "Ver portfólio"}
-            </BotaoLink>
-          </RevealItem>
-        </Reveal>
+            <RevealItem
+              as="h1"
+              className="text-balance font-display text-4xl leading-[1.1] text-grafite sm:text-5xl lg:text-6xl"
+            >
+              {secao.titulo}
+            </RevealItem>
+
+            {secao.descricao ? (
+              <RevealItem
+                as="p"
+                className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-texto-suave"
+              >
+                {secao.descricao}
+              </RevealItem>
+            ) : null}
+
+            <RevealItem className="mt-10 flex flex-wrap gap-3">
+              <BotaoLink href="#contato" tamanho="lg">
+                {conteudo?.botaoPrimario ?? brand.microcopy.botoes.contatoPrimario}
+              </BotaoLink>
+              <BotaoLink href="#portfolio" variante="secundario" tamanho="lg">
+                {conteudo?.botaoSecundario ?? brand.microcopy.botoes.verPortfolio}
+              </BotaoLink>
+            </RevealItem>
+          </Reveal>
+
+          {/* Visual de apoio em telas grandes: o simbolo em destaque, numa
+              moldura circular. Em telas pequenas o simbolo acima do titulo
+              ja basta - evita disputar espaco com o texto. */}
+          <Reveal
+            variante="escala"
+            delay={0.3}
+            as="div"
+            className="hidden lg:flex lg:items-center lg:justify-center"
+          >
+            <div className="relative flex h-72 w-72 items-center justify-center rounded-full bg-areia-claro ring-1 ring-borda lg:h-80 lg:w-80">
+              <ArkaSymbol variante="circulo-musgo" tamanho={160} alt="" />
+            </div>
+          </Reveal>
+        </div>
       </Container>
     </section>
   );

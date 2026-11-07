@@ -113,3 +113,51 @@ tela de cadastro do painel.
 Todo o texto em `src/content/*` é uma versão base escrita pela Parte 0 a
 partir do brand board, só para o site funcionar e poder ir ao ar. A **Parte C**
 é a dona dos textos e vai reescrever tudo, mantendo as mesmas chaves.
+
+---
+
+## 7. 🔴 Google Ads precisa dos IDs reais
+
+**Registrado em:** 07/11/2026 (pedido do dono)
+
+O site já está preparado para Google Ads, Analytics e Tag Manager, mas
+**nenhum script é injetado enquanto não houver ID configurado** — hoje o
+rastreamento está inerte.
+
+Para ligar, preencha em `.env.local` (copie de `.env.example`) e, na Vercel,
+nas variáveis de ambiente do projeto:
+
+| Variável | Onde encontrar | Formato |
+| --- | --- | --- |
+| `NEXT_PUBLIC_GOOGLE_ADS_ID` | Google Ads → Admin → Vinculações | `AW-XXXXXXXXXX` |
+| `NEXT_PUBLIC_GOOGLE_ADS_CONVERSAO` | Google Ads → Metas → Ação de conversão → Tag | `AW-XXXXXXXXXX/abcDEFghiJKL` |
+| `NEXT_PUBLIC_GA_ID` | Google Analytics → Admin → Fluxo de dados | `G-XXXXXXXXXX` |
+| `NEXT_PUBLIC_GTM_ID` | Tag Manager → container | `GTM-XXXXXXX` |
+
+Depois da Parte 7 esses valores também poderão ser editados pelo painel
+(chave `rastreamento` em `site_settings`), e o que estiver no banco terá
+prioridade sobre a variável de ambiente — assim dá para trocar sem deploy.
+
+**Conversões já instrumentadas** (em `src/lib/conversoes.ts`):
+`contato_formulario`, `contato_whatsapp`, `contato_email`.
+
+---
+
+## 8. 🟡 Consentimento de cookies (LGPD)
+
+**Registrado em:** 07/11/2026
+
+Os scripts de Google Ads e Analytics usam cookies de publicidade e medição.
+Hoje eles carregam assim que a página abre, sem pedir consentimento.
+
+Para a maioria dos sites brasileiros isso é o que se pratica, mas se você
+quiser seguir a LGPD à risca — ou se o site receber visitantes da União
+Europeia, onde isso não é opcional — será preciso:
+
+1. Um banner de consentimento que só libere os scripts após o aceite.
+2. Guardar a escolha da pessoa e permitir mudá-la depois.
+3. Usar o Consent Mode do Google (`gtag('consent', 'default', ...)`).
+
+O ponto de entrada para isso é `src/components/tracking/Rastreamento.tsx`:
+é só condicionar a renderização ao consentimento. **Decisão do dono** —
+não implementei porque muda a experiência de quem entra no site.

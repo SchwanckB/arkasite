@@ -239,3 +239,44 @@ foi uma decisão de projeto, justamente para poder publicar cedo.
 
 Antes de divulgar o endereço, resolva os itens 🔴 de `docs/PENDENCIAS.md` —
 hoje o botão de WhatsApp aponta para um número inexistente.
+
+---
+
+## 10. Escopo do painel: o que o dono precisa gerenciar
+
+> Requisito dado pelo dono em 07/11/2026. **Vale para as Partes 7 e 8** —
+> o schema do banco precisa nascer com isso, não ganhar remendo depois.
+
+O painel tem de permitir gerenciar, sem mexer em código:
+
+| Conteúdo | Onde | Já previsto? |
+| --- | --- | --- |
+| Serviços (criar, editar, reordenar, publicar) | Parte 8 | ✅ tabela `services` |
+| Textos de todas as seções | Parte 8 | ✅ `site_sections` |
+| Diferenciais e etapas do processo | Parte 8 | ✅ tabelas próprias |
+| Portfólio (projetos, capas, galeria) | Parte 8 | ✅ `projects` + `media` |
+| Perguntas frequentes | Parte 8 | ⚠️ **falta tabela `faq`** |
+| Contatos, redes e SEO | Parte 8 | ✅ `site_settings` |
+| **Anúncios** | Parte 8 | ⚠️ **falta definir — ver abaixo** |
+
+### Pendências de modelagem que a Parte 7 precisa resolver
+
+1. **`faq`** — a seção de perguntas frequentes existe no site e hoje vem de
+   `src/content/brand.ts`. Precisa de tabela própria (`id`, `pergunta`,
+   `resposta`, `ordem`, `publicado`) e de `getFaq()` lendo do banco, com
+   reserva no conteúdo estático, como as demais.
+
+2. **`anuncios`** — o dono pediu "gerenciar anúncios pelo painel". O termo
+   admite duas leituras, e elas levam a implementações diferentes:
+
+   - **(a) Avisos/banners no site** — faixa de destaque no topo ou bloco
+     promocional ("Promoção de janeiro", "Estamos de férias até dia 5").
+     Pede tabela `announcements` (`titulo`, `texto`, `link`, `tipo`,
+     `inicia_em`, `termina_em`, `ativo`) e um componente de faixa no site.
+   - **(b) Anúncios pagos** — Google Ads / Meta Ads: campos de pixel de
+     rastreamento, Google Tag Manager, UTM e páginas de destino de campanha.
+     Pede chaves em `site_settings` e injeção condicional de script, com
+     cuidado de consentimento.
+
+   **Confirmar com o dono antes de modelar.** As duas podem conviver, mas
+   são trabalhos distintos: (a) é conteúdo, (b) é configuração e rastreamento.

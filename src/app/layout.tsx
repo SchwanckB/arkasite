@@ -3,6 +3,7 @@ import { Inter, Montserrat } from "next/font/google";
 
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { Rastreamento } from "@/components/tracking/Rastreamento";
 import { getSiteSettings } from "@/lib/data";
 
 import "./globals.css";
@@ -91,6 +92,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <Footer />
+
+        {/* Google Ads / Analytics / Tag Manager.
+            Nao renderiza nada quando nao ha id configurado. */}
+        <Rastreamento />
       </body>
     </html>
   );

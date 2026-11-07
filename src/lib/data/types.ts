@@ -190,3 +190,25 @@ export type BrandContent = {
   sobre: { curto: string; longo: string[] };
   indicadores: Indicador[];
 };
+
+/* ------------------------------------------------------------------ */
+/* Rastreamento (Google Ads, Analytics, Tag Manager)                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Identificadores de rastreamento. Nenhum script e injetado quando o
+ * respectivo id esta vazio, entao o site funciona normalmente sem nada
+ * configurado.
+ */
+export type TrackingSettings = {
+  /** ID do Google Ads, formato AW-XXXXXXXXXX. */
+  googleAdsId: string | null;
+  /** Rotulo de conversao completo, formato AW-XXXXXXXXXX/abcDEFghiJKL. */
+  googleAdsConversao: string | null;
+  /** ID do Google Analytics 4, formato G-XXXXXXXXXX. */
+  googleAnalyticsId: string | null;
+  /** ID do Google Tag Manager, formato GTM-XXXXXXX. */
+  gtmId: string | null;
+  /** Desliga todo o rastreamento de uma vez, sem apagar os ids. */
+  ativo: boolean;
+};
