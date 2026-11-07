@@ -70,13 +70,23 @@ export const sections: Section[] = [
     ordem: 6,
   },
   {
+    id: "faq",
+    rotulo: "Dúvidas",
+    titulo: "Perguntas frequentes",
+    subtitulo: "Dúvidas",
+    descricao:
+      "As perguntas que mais aparecem na primeira conversa, respondidas sem rodeio.",
+    visivel: true,
+    ordem: 7,
+  },
+  {
     id: "cta",
     rotulo: "Começar",
     titulo: "Pronto para colocar seu negócio no ar?",
     descricao:
       "Conte o que você precisa. A primeira conversa é sem compromisso.",
     visivel: true,
-    ordem: 7,
+    ordem: 8,
     conteudo: { botao: "Falar com especialista" },
   },
   {
@@ -87,6 +97,6 @@ export const sections: Section[] = [
     descricao:
       "Conte um pouco sobre o seu projeto e retornamos em até um dia útil.",
     visivel: true,
-    ordem: 8,
+    ordem: 9,
   },
 ];

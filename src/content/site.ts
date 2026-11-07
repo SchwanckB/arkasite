@@ -11,11 +11,12 @@
 
 import type { SiteSettings } from "@/lib/data/types";
 
+import { brand } from "./brand";
+
 export const site: SiteSettings = {
   nome: "ARKA Technologies",
-  tagline: "Tecnologia que conecta sua marca ao futuro.",
-  descricao:
-    "Criamos sites modernos, rápidos e pensados para gerar resultado para o seu negócio.",
+  tagline: brand.manifesto.assinatura,
+  descricao: brand.sobre.curto,
   url: "https://arkatechnologies.com.br", // [CONFIRMAR] domínio oficial
   contato: {
     email: "contato@arkatechnologies.com.br", // [CONFIRMAR]
@@ -27,11 +28,9 @@ export const site: SiteSettings = {
     instagram: "https://instagram.com/arkatechnologies", // [CONFIRMAR]
   },
   seo: {
-    titulo: "ARKA Technologies | Sites modernos que geram resultado",
-    descricao:
-      "Sites institucionais, lojas virtuais e landing pages feitos sob medida. Design atual, performance e suporte próximo.",
+    titulo: brand.seo.home.titulo,
+    descricao: brand.seo.home.descricao,
     imagemOg: "/og-image.png",
   },
-  mensagemWhatsapp:
-    "Olá! Vim pelo site da ARKA e gostaria de falar sobre um projeto.",
+  mensagemWhatsapp: brand.whatsapp.mensagemPadrao,
 };

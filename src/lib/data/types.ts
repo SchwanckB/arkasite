@@ -51,6 +51,7 @@ export type SectionId =
   | "servicos"
   | "processo"
   | "portfolio"
+  | "faq"
   | "cta"
   | "contato";
 
@@ -90,6 +91,8 @@ export type Differential = {
   id: string;
   titulo: string;
   descricao: string;
+  /** Frase de apoio concreta, escrita pela Parte C. */
+  apoio?: string;
   icone: NomeIcone;
   ordem: number;
 };
@@ -162,3 +165,28 @@ export type LeadFalha =
 export type LeadResult =
   | { ok: true; id?: string }
   | { ok: false; reason: LeadFalha; mensagem?: string };
+
+/* ------------------------------------------------------------------ */
+/* Marca e perguntas frequentes                                        */
+/* ------------------------------------------------------------------ */
+
+export type Valor = { nome: string; descricao: string };
+
+/** Indicador de diferenciacao. Sao frases, nunca numeros inventados. */
+export type Indicador = { titulo: string; descricao: string };
+
+export type Faq = {
+  id: string;
+  pergunta: string;
+  resposta: string;
+};
+
+/** Textos institucionais da marca, escritos pela Parte C. */
+export type BrandContent = {
+  manifesto: { paragrafos: string[]; assinatura: string };
+  missao: string;
+  visao: string;
+  valores: Valor[];
+  sobre: { curto: string; longo: string[] };
+  indicadores: Indicador[];
+};

@@ -15,6 +15,7 @@
 
 import { cacheTag } from "next/cache";
 
+import { brand as conteudoBrand } from "@/content/brand";
 import { differentials as conteudoDifferentials } from "@/content/differentials";
 import { processSteps as conteudoProcess } from "@/content/process";
 import { projects as conteudoProjects } from "@/content/projects";
@@ -24,7 +25,9 @@ import { site as conteudoSite } from "@/content/site";
 
 import { TAGS } from "./tags";
 import type {
+  BrandContent,
   Differential,
+  Faq,
   LeadInput,
   LeadResult,
   ProcessStep,
@@ -119,6 +122,37 @@ export async function getProjects(opcoes?: {
 export async function getProject(slug: string): Promise<Project | undefined> {
   const lista = await getProjects({ incluirNaoPublicados: true });
   return lista.find((p) => p.slug === slug);
+}
+
+/**
+ * Textos institucionais da marca: manifesto, missao, visao, valores,
+ * "sobre" curto e longo, e os indicadores de diferenciacao.
+ */
+export async function getBrand(): Promise<BrandContent> {
+  "use cache";
+  cacheTag(TAGS.settings, TAGS.site);
+
+  return {
+    manifesto: {
+      paragrafos: [...conteudoBrand.manifesto.paragrafos],
+      assinatura: conteudoBrand.manifesto.assinatura,
+    },
+    missao: conteudoBrand.missao,
+    visao: conteudoBrand.visao,
+    valores: conteudoBrand.valores.map((v) => ({ ...v })),
+    sobre: {
+      curto: conteudoBrand.sobre.curto,
+      longo: [...conteudoBrand.sobre.longo],
+    },
+    indicadores: conteudoBrand.indicadores.map((i) => ({ ...i })),
+  };
+}
+
+/** Perguntas frequentes, na ordem em que devem aparecer. */
+export async function getFaq(): Promise<Faq[]> {
+  "use cache";
+  cacheTag(TAGS.sections, TAGS.site);
+  return conteudoBrand.faq.map((p) => ({ ...p }));
 }
 
 /* ------------------------------------------------------------------ */
