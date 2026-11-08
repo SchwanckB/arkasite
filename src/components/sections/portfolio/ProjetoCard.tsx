@@ -65,7 +65,7 @@ export function ProjetoCard({ projeto, onAbrir }: ProjetoCardProps) {
               className="h-full w-full object-cover"
             />
           ) : (
-            <MockSite variante={projeto.variante} />
+            <MockSite projeto={projeto} />
           )}
         </DeviceFrame>
       </div>

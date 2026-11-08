@@ -20,6 +20,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         disallow: ["/admin", "/admin/", "/api/"],
       },
     ],
-    sitemap: `${settings.url}/sitemap.xml`,
+    sitemap: new URL("/sitemap.xml", settings.url).toString(),
   };
 }

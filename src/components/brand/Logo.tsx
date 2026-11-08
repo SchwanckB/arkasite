@@ -94,7 +94,8 @@ export function Logo({
         alt="ARKA Technologies"
         width={largura}
         height={altura}
-        priority={prioridade}
+        loading={prioridade ? "eager" : undefined}
+        fetchPriority={prioridade ? "high" : undefined}
         className="arka-logo-image select-none"
         style={{ height: altura, width: largura }}
       />
@@ -179,7 +180,8 @@ export function ArkaSymbol({
         alt={alt}
         width={largura}
         height={tamanho}
-        priority={prioridade}
+        loading={prioridade ? "eager" : undefined}
+        fetchPriority={prioridade ? "high" : undefined}
         aria-hidden={alt === "" || undefined}
         className="arka-logo-image select-none"
         style={{ height: tamanho, width: largura }}

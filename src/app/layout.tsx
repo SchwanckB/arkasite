@@ -40,6 +40,9 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: settings.seo.descricao,
     applicationName: settings.nome,
+    verification: settings.seo.googleVerification
+      ? { google: settings.seo.googleVerification }
+      : undefined,
     openGraph: {
       type: "website",
       locale: "pt_BR",

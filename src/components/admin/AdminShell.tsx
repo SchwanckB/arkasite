@@ -11,13 +11,13 @@ import type { UsuarioAutenticado } from "@/lib/supabase/auth";
 import { cn } from "@/lib/utils";
 
 const ITENS_MENU = MENU_ADMIN.flatMap((grupo) => grupo.itens);
-const LINKS_RAPIDOS = [
+const HREFS_RAPIDOS = new Set([
   "/admin",
   "/admin/crm",
   "/admin/clientes",
   "/admin/financeiro",
   "/admin/tarefas",
-].flatMap((href) => ITENS_MENU.filter((item) => item.href === href));
+]);
 
 function LinkMenu({
   item,
@@ -55,6 +55,18 @@ export function AdminShell({
 }) {
   const pathname = usePathname();
   const [menuAberto, setMenuAberto] = useState(false);
+  const menu = usuario.papel === "staff"
+    ? MENU_ADMIN.map((grupo) => ({
+      ...grupo,
+      itens: grupo.itens.filter((item) =>
+        !["/admin/financeiro", "/admin/site", "/admin/portfolio", "/admin/aparencia", "/admin/configuracoes"].includes(item.href),
+      ),
+    })).filter((grupo) => grupo.itens.length > 0)
+    : MENU_ADMIN;
+  const linksRapidos = ITENS_MENU.filter(
+    (item) => HREFS_RAPIDOS.has(item.href) &&
+      (usuario.papel !== "staff" || item.href !== "/admin/financeiro"),
+  );
 
   function itemAtivo(item: ItemMenuAdmin) {
     return item.href === "/admin"
@@ -74,7 +86,7 @@ export function AdminShell({
           </span>
         </Link>
         <nav aria-label="Painel administrativo" className="mt-8 flex-1 space-y-6">
-          {MENU_ADMIN.map((grupo) => (
+          {menu.map((grupo) => (
             <section key={grupo.titulo} aria-label={grupo.titulo}>
               <h2 className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-texto-suave">
                 {grupo.titulo}
@@ -148,7 +160,7 @@ export function AdminShell({
             aria-label="Navegação do painel"
             className="absolute inset-x-0 z-20 border-b border-borda bg-fundo p-4 shadow-media lg:hidden"
           >
-            {MENU_ADMIN.map((grupo) => (
+            {menu.map((grupo) => (
               <section key={grupo.titulo} className="mb-4 last:mb-0">
                 <h2 className="mb-1 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-texto-suave">
                   {grupo.titulo}
@@ -177,7 +189,7 @@ export function AdminShell({
           aria-label="Atalhos do painel"
           className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-borda bg-fundo/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
         >
-          {LINKS_RAPIDOS.map((item) => (
+          {linksRapidos.map((item) => (
             <Link
               key={item.href}
               href={item.href}

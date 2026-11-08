@@ -35,6 +35,7 @@ export type SiteSettings = {
     titulo: string;
     descricao: string;
     imagemOg: string;
+    googleVerification: string;
   };
   /** Mensagem pre-preenchida no link do WhatsApp. */
   mensagemWhatsapp: string;

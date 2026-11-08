@@ -1,15 +1,8 @@
 "use client";
 
 /**
- * HeroBackdrop - padrao visual de apoio do hero (PARTE 1).
- *
- * E o "bloco musgo solido" descrito em docs/BRAND.md (padroes visuais):
- * uma forma geometrica, de cor cheia, opacidade baixa, atras do conteudo.
- * Puramente decorativo (aria-hidden) e sem interferir no layout - so
- * transform, nunca largura/altura, para nao causar deslocamento.
- *
- * Tem um parallax bem sutil ligado ao scroll. Com prefers-reduced-motion a
- * forma fica parada (ver useReducedMotion em @/lib/motion).
+ * Brilho radial discreto no hero. Evita o bloco geométrico que parecia uma
+ * mancha cinza cortada no canto da tela.
  */
 
 import { motion, useScroll, useTransform } from "motion/react";
@@ -19,13 +12,17 @@ import { useReducedMotion } from "@/lib/motion";
 export function HeroBackdrop() {
   const reduzido = useReducedMotion();
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 600], [0, reduzido ? 0 : 56]);
+  const y = useTransform(scrollY, [0, 600], [0, reduzido ? 0 : 28]);
 
   return (
     <motion.div
       aria-hidden
-      style={{ y }}
-      className="pointer-events-none absolute -right-16 -top-20 h-72 w-72 rounded-marca-lg bg-musgo opacity-[0.07] sm:-right-24 sm:-top-24 sm:h-[26rem] sm:w-[26rem]"
+      className="pointer-events-none absolute -right-56 -top-64 h-[34rem] w-[34rem] rounded-full opacity-70 sm:-right-48 sm:-top-72 sm:h-[42rem] sm:w-[42rem]"
+      style={{
+        y,
+        background:
+          "radial-gradient(circle, rgb(125 139 121 / 0.13) 0%, rgb(125 139 121 / 0.055) 38%, transparent 70%)",
+      }}
     />
   );
 }

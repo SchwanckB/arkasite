@@ -1,11 +1,11 @@
 -- =============================================================================
 -- ARKA TECHNOLOGIES - dados iniciais
 --
--- Popula services, differentials, process_steps, projects, faq e
+-- Popula site_sections, services, differentials, process_steps, projects, faq e
 -- site_settings a partir do conteudo escrito nas Partes C e 0
 -- (src/content/*.ts). Rode depois de 0001_init.sql.
 --
--- Idempotente: pode rodar mais de uma vez sem duplicar (usa ON CONFLICT).
+-- Rode apos as migracoes. Idempotente e preserva alteracoes ja feitas no painel.
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ insert into site_settings (chave, valor) values
     'gtm_id', null,
     'ativo', true
   ))
-on conflict (chave) do update set valor = excluded.valor;
+on conflict (chave) do nothing;
 
 -- -----------------------------------------------------------------------------
 -- services  (src/content/services.ts)
@@ -69,10 +69,7 @@ insert into services (slug, nome, descricao, entregas, icone, ordem, publicado) 
    'Seu site sempre no ar, atualizado e seguro, com alguém por perto quando precisar. Você recebe acompanhamento contínuo e pequenas alterações sem precisar abrir um novo projeto.',
    array['Atualizações e backups', 'Pequenos ajustes', 'Monitoramento', 'Canal direto de suporte'],
    'Wrench', 5, true)
-on conflict (slug) do update set
-  nome = excluded.nome, descricao = excluded.descricao,
-  entregas = excluded.entregas, icone = excluded.icone,
-  ordem = excluded.ordem, publicado = excluded.publicado;
+on conflict (slug) do nothing;
 
 -- -----------------------------------------------------------------------------
 -- differentials  (src/content/differentials.ts)
@@ -86,7 +83,8 @@ insert into differentials (titulo, descricao, apoio, icone, ordem) values
   ('Focados em resultados', 'Mais visibilidade, mais clientes, mais crescimento.',
    'Cada página tem um objetivo claro: receber uma ligação, um orçamento ou uma compra.', 'TrendingUp', 3),
   ('Suporte dedicado', 'Atendimento próximo e soluções sob medida.',
-   'Depois da entrega, você continua falando com quem construiu o seu site.', 'Headset', 4);
+   'Depois da entrega, você continua falando com quem construiu o seu site.', 'Headset', 4)
+on conflict (titulo) do nothing;
 
 -- -----------------------------------------------------------------------------
 -- process_steps  (src/content/process.ts)
@@ -105,9 +103,7 @@ insert into process_steps (id, numero, titulo, descricao, detalhe, icone) values
   ('entrega', 4, 'Entrega',
    'Publicamos, testamos em todos os aparelhos e seguimos por perto.',
    'Treinamento de uso, ajustes finais e suporte após a publicação.', 'Rocket')
-on conflict (id) do update set
-  numero = excluded.numero, titulo = excluded.titulo,
-  descricao = excluded.descricao, detalhe = excluded.detalhe, icone = excluded.icone;
+on conflict (id) do nothing;
 
 -- -----------------------------------------------------------------------------
 -- faq  (src/content/brand.ts)
@@ -129,7 +125,8 @@ insert into faq (pergunta, resposta, ordem, publicado) values
   ('Meu site atual está velho. Dá para aproveitar alguma coisa?',
    'Quase sempre dá. Textos, fotos e o endereço na internet costumam ser aproveitados, e tomamos cuidado para o seu site não perder posição no Google na troca. O que não se aproveita é o que estava atrapalhando.', 7, true),
   ('Vocês atendem clientes de outras cidades?',
-   'Sim. Todo o processo funciona bem à distância, por videochamada e WhatsApp. Você acompanha o projeto por um endereço de testes desde as primeiras semanas.', 8, true);
+   'Sim. Todo o processo funciona bem à distância, por videochamada e WhatsApp. Você acompanha o projeto por um endereço de testes desde as primeiras semanas.', 8, true)
+on conflict (pergunta) do nothing;
 
 -- -----------------------------------------------------------------------------
 -- projects  (src/content/projects.ts) - todos marcados como conceito
@@ -163,11 +160,7 @@ insert into projects (slug, nome, categoria, descricao, dispositivo, variante, i
   ('consultoria-conceito', 'Consultoria', 'Negócios',
    'Demonstração de uma landing page para explicar um serviço especializado e gerar pedidos de conversa.',
    'mobile', 'landing', true, array['Landing page', 'Serviços', 'Conversão'], true, 9)
-on conflict (slug) do update set
-  nome = excluded.nome, categoria = excluded.categoria, descricao = excluded.descricao,
-  dispositivo = excluded.dispositivo, variante = excluded.variante,
-  is_concept = excluded.is_concept, tags = excluded.tags,
-  publicado = excluded.publicado, ordem = excluded.ordem;
+on conflict (slug) do nothing;
 
 -- -----------------------------------------------------------------------------
 -- finance_accounts e finance_categories - minimo para o modulo abrir usavel
@@ -185,3 +178,39 @@ insert into finance_categories (nome, tipo, cor, ordem) values
   ('Impostos', 'out', '#DAD2C2', 2),
   ('Outras despesas', 'out', '#DAD2C2', 3)
 on conflict (nome, tipo) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- site_sections - textos publicados por secao (os rascunhos sao do painel)
+-- -----------------------------------------------------------------------------
+
+insert into site_sections
+  (id, rotulo, titulo, subtitulo, descricao, conteudo, visivel, ordem)
+values
+  ('hero', 'Início', 'Soluções digitais para impulsionar seu comércio',
+   'Tecnologia que conecta sua marca ao futuro.',
+   'Sites modernos, rápidos e feitos sob medida para o seu negócio aparecer e vender mais.',
+   '{"botaoPrimario":"Falar com especialista","botaoSecundario":"Ver portfólio"}'::jsonb, true, 1),
+  ('sobre', 'Sobre', 'Sobre a ARKA', 'Quem constrói o seu projeto',
+   'Somos um estúdio de tecnologia focado em presença digital. Unimos design cuidadoso e código bem feito para entregar sites que funcionam bem e envelhecem bem.',
+   '{}'::jsonb, true, 2),
+  ('diferenciais', 'Diferenciais', 'Por que a ARKA', 'O que você encontra aqui',
+   null, '{}'::jsonb, true, 3),
+  ('servicos', 'Serviços', 'O que fazemos', 'Serviços',
+   'Do primeiro site à loja completa, com acompanhamento em cada etapa.',
+   '{}'::jsonb, true, 4),
+  ('processo', 'Processo', 'Como trabalhamos', 'Processo',
+   'Quatro etapas claras, do primeiro contato à entrega.',
+   '{}'::jsonb, true, 5),
+  ('portfolio', 'Portfólio', 'Projetos', 'Portfólio',
+   'Alguns projetos e conceitos que mostram o nosso jeito de trabalhar.',
+   '{}'::jsonb, true, 6),
+  ('faq', 'Dúvidas', 'Perguntas frequentes', 'Dúvidas',
+   'As perguntas que mais aparecem na primeira conversa, respondidas sem rodeio.',
+   '{}'::jsonb, true, 7),
+  ('cta', 'Começar', 'Pronto para colocar seu negócio no ar?', null,
+   'Conte o que você precisa. A primeira conversa é sem compromisso.',
+   '{"botao":"Falar com especialista"}'::jsonb, true, 8),
+  ('contato', 'Contato', 'Vamos conversar', 'Contato',
+   'Conte um pouco sobre o seu projeto e retornamos em até um dia útil.',
+   '{}'::jsonb, true, 9)
+on conflict (id) do nothing;

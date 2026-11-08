@@ -12,6 +12,16 @@ export function linkWhatsapp(digitos: string, mensagem?: string) {
   return mensagem ? `${base}?text=${encodeURIComponent(mensagem)}` : base;
 }
 
+export function instagramHandle(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (!["instagram.com", "www.instagram.com"].includes(parsed.hostname)) return null;
+    return parsed.pathname.split("/").filter(Boolean)[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Gera um slug simples a partir de um texto em portugues. */
 export function slugify(texto: string) {
   return texto

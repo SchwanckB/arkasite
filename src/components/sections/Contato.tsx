@@ -12,13 +12,15 @@ import { Icone } from "@/components/ui/Icone";
 import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { linkWhatsapp } from "@/lib/utils";
+import { instagramHandle, linkWhatsapp } from "@/lib/utils";
 
 export async function Contato() {
   const [secao, settings] = await Promise.all([
     getSection("contato"),
     getSiteSettings(),
   ]);
+  const instagram = settings.redes.instagram;
+  const usuarioInstagram = instagram ? instagramHandle(instagram) : null;
 
   if (!secao?.visivel) return null;
 
@@ -31,15 +33,15 @@ export async function Contato() {
       />
 
       <Reveal className="mt-12 flex flex-wrap gap-3">
-        {settings.redes.instagram ? (
+        {instagram ? (
           <BotaoLink
-            href={settings.redes.instagram}
+            href={instagram}
             target="_blank"
             rel="noopener noreferrer"
             tamanho="lg"
           >
-            <Icone nome="Instagram" tamanho={18} />
-            Instagram @technologiesarka
+            <Icone nome="AtSign" tamanho={18} />
+            {usuarioInstagram ? `Instagram @${usuarioInstagram}` : "Instagram"}
           </BotaoLink>
         ) : null}
 

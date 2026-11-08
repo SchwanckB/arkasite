@@ -9,6 +9,7 @@ import Link from "next/link";
 import { getSiteSettings } from "@/lib/data";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/brand/Logo";
+import { instagramHandle } from "@/lib/utils";
 
 /**
  * O ano do aviso de direitos autorais.
@@ -25,6 +26,9 @@ async function getAnoAtual() {
 
 export async function Footer() {
   const [settings, ano] = await Promise.all([getSiteSettings(), getAnoAtual()]);
+  const instagramHandleValue = settings.redes.instagram
+    ? instagramHandle(settings.redes.instagram)
+    : null;
 
   return (
     <footer className="border-t border-borda bg-fundo-alt py-14">
@@ -48,7 +52,9 @@ export async function Footer() {
                 rel="noopener noreferrer"
                 className="transition-colors duration-[180ms] hover:text-musgo"
               >
-                Instagram @technologiesarka
+                {instagramHandleValue
+                  ? `Instagram @${instagramHandleValue}`
+                  : "Instagram"}
               </Link>
             ) : null}
           </div>

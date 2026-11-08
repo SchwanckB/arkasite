@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { getUsuarioAtual } from "@/lib/supabase/auth";
@@ -10,6 +11,7 @@ export default async function PainelLayout({
 }: {
   children: ReactNode;
 }) {
+  await connection();
   if (!supabaseConfigurado()) return children;
 
   const usuario = await getUsuarioAtual();

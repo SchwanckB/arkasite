@@ -73,6 +73,15 @@ export async function Hero() {
                 {conteudo?.botaoSecundario ?? brand.microcopy.botoes.verPortfolio}
               </BotaoLink>
             </RevealItem>
+            <RevealItem className="mt-5">
+              <a
+                href="#projeto-guiado"
+                className="inline-flex items-center gap-2 text-sm font-medium text-musgo transition-colors hover:text-musgo-escuro"
+              >
+                Ainda não sabe qual formato escolher?
+                <span aria-hidden>→</span>
+              </a>
+            </RevealItem>
           </Reveal>
 
           {/* Visual de apoio em telas grandes: o simbolo em destaque, numa
@@ -86,7 +95,7 @@ export async function Hero() {
           >
             <div className="relative flex h-72 w-72 items-center justify-center rounded-full bg-areia-claro ring-1 ring-borda lg:h-80 lg:w-80">
               <ArkaSymbol
-                variante="circulo-musgo"
+                variante="simples"
                 tamanho={160}
                 alt=""
                 className="arka-logo-flutuante"

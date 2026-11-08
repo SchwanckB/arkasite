@@ -108,17 +108,17 @@ Registre no relatório final em vez de editar por conta própria.
 
 ---
 
-## 4. Ordem de execução
+## 4. Organização da implementação
 
-> **Mudança combinada com o dono (07/11/2026):** o site público vem **antes**
-> do painel, para poder publicar na Vercel o quanto antes. A ordem abaixo
-> substitui a do adendo.
+> **Mudança combinada com o dono (07/11/2026):** o site público veio **antes**
+> do painel, para poder publicar na Vercel o quanto antes. A sequência abaixo
+> registra a ordem originalmente adotada; não é uma lista de trabalho pendente.
 
 1. **Parte 0 — Fundação** (sozinha) ✅ concluída
 2. **Parte C — Copy** e **Partes 1 a 5** (site público) — até 3 ou 4 chats por vez
 3. **Publicar na Vercel** 🚀 — o site já funciona sem banco
 4. **Parte 7 — Backend + shell do admin**
-5. **Partes 8, 9, 10** (módulos do painel), depois **Parte 11** (dashboard)
+5. **Partes 8, 9, 10** (módulos do painel), depois **Parte 11** (dashboard) ✅ concluídas
 6. **Parte 6 — Integração, segurança e QA** (sozinha, por último)
 
 Worktrees sugeridos: `feat/copy`, `feat/hero`, `feat/sobre`, `feat/servicos`,
@@ -127,17 +127,23 @@ Worktrees sugeridos: `feat/copy`, `feat/hero`, `feat/sobre`, `feat/servicos`,
 
 ### Estado do painel (07/11/2026)
 
-- Implementados: site público isolado em `app/(site)`, aviso de configuração
-  do Supabase, login sem cadastro público, validação de sessão e perfil no
-  servidor, logout, shell responsivo com navegação mobile e desktop, noindex
-  e rotas iniciais para os módulos do adendo. A migração
-  `0002_profiles_role_hardening.sql` restringe alterações de papel no banco.
-- Ainda pendentes: CRUD conectado ao banco para conteúdo e mídia (Parte 8),
-  regras e testes de cálculo financeiro (Parte 9), CRM e gestão de projetos
-  (Parte 10), e agregações reais do dashboard (Parte 11). As telas sem CRUD
-  mostram um estado vazio explícito, não dados demonstrativos.
-- Configure o Supabase conforme `docs/SETUP-SUPABASE.md`. Sem variáveis de
-  ambiente, `/admin` apresenta instruções e o site público continua disponível.
+- Implementados: login e shell responsivo; dashboard com contagens reais;
+  CRM de leads e oportunidades, clientes/contatos, projetos e tarefas;
+  financeiro com lançamentos, contas e categorias; edição do conteúdo e
+  publicação de seções em rascunho; portfólio, mídia no Storage, aparência,
+  contatos, SEO, rastreamento e papéis da equipe.
+- As leituras públicas usam o Supabase quando configurado e preservam o
+  conteúdo local como reserva. Alterações publicadas invalidam as tags de
+  cache do site. Configure e aplique as migrações/seed conforme
+  `docs/SETUP-SUPABASE.md`.
+- Financeiro, conteúdo, portfólio e configurações são restritos a owner/admin;
+  staff gerencia relacionamento, projetos, tarefas e envio de mídia. A
+  criação de usuários continua no Supabase; o owner pode atribuir admin/staff
+  no painel.
+- O financeiro não integra banco, emissão fiscal nem pagamentos: registra
+  lançamentos internos em centavos. IDs de anúncios são tags de medição, não
+  gestão de campanhas pagas. Sem variáveis do Supabase, `/admin` mostra as
+  instruções de conexão e o site público usa conteúdo local.
 
 ---
 

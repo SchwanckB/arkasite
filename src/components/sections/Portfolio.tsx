@@ -34,6 +34,20 @@ export async function Portfolio() {
         descricao={secao.descricao}
       />
 
+      {projetos.length > 0 && projetos.every((projeto) => projeto.isConcept) ? (
+        <div className="mt-8 flex flex-col gap-2 rounded-marca-lg border border-musgo/10 bg-superficie p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div>
+            <p className="text-sm font-semibold text-musgo">Estudos visuais criados pela ARKA</p>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-texto-suave">
+              Cada prévia ilustra uma ideia de site para um tipo de negócio. São conceitos originais, não projetos publicados de clientes.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full bg-areia px-3 py-1.5 text-xs font-medium text-musgo">
+            {projetos.length} conceitos
+          </span>
+        </div>
+      ) : null}
+
       {projetos.length === 0 ? (
         <p className="mt-10 text-texto-suave">
           {brand.microcopy.estadosVazios.portfolio}

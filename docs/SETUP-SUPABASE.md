@@ -4,28 +4,32 @@ Passo a passo para o dono ligar o banco de dados. **Sem isso, o site
 continua funcionando** com o conteúdo de `src/content/*` — este passo liga
 o painel administrativo e o formulário de contato de verdade.
 
-## 1. Criar o projeto
+## 1. Projeto Supabase
 
-1. Acesse [supabase.com](https://supabase.com) e crie uma conta (dá para
-   entrar com GitHub).
-2. **New Project** → escolha um nome (ex.: `arka-technologies`), uma senha
-   forte para o banco (guarde-a em um lugar seguro) e a região mais perto do
-   Brasil (`South America (São Paulo)`, se disponível).
-3. Aguarde alguns minutos até o projeto ficar pronto.
+Se já existe um projeto integrado à Vercel, use esse mesmo projeto. Confirme
+que o repositório, preview e produção apontam para o Supabase correto. Não
+crie outro projeto só para habilitar o painel.
 
-## 2. Rodar as migrações
+## 2. Rodar as migrações e popular os dados iniciais
 
 No painel do Supabase, abra **SQL Editor** → **New query**.
 
-1. Cole e rode cada arquivo de `supabase/migrations/`, em ordem alfabética.
-2. Cole o conteúdo de `supabase/seed.sql` e rode — isso preenche serviços,
-   diferenciais, etapas, perguntas frequentes e os projetos conceito.
+1. Cole e execute, em ordem, as migrações que ainda não foram aplicadas:
+   `0001_init.sql`, `0002_profiles_role_hardening.sql` e
+   `0003_admin_modules.sql`.
+2. Execute o conteúdo atualizado de `supabase/seed.sql`. Ele preenche as
+   seções, serviços, diferenciais, etapas, perguntas frequentes, configurações
+   públicas e projetos-conceito. Conflitos preservam os dados já editados no
+   painel; o seed pode ser executado novamente.
 
 Se `0001_init.sql` já foi aplicado anteriormente, rode também a nova migração
 `0002_profiles_role_hardening.sql`. Ela restringe a edição de papéis para
 impedir que um usuário altere seu próprio acesso diretamente pela API.
+Para ativar os módulos, aplique também `0003_admin_modules.sql`; ela habilita
+o bucket `media`, suas políticas de acesso, a edição de papéis pelo owner e
+índices para evitar duplicar perguntas e diferenciais ao executar o seed.
 
-Se o seu Claude Code tiver o CLI do Supabase configurado, também funciona:
+Se o CLI do Supabase estiver configurado, também funciona:
 
 ```bash
 npx supabase link --project-ref SEU_PROJECT_REF
@@ -33,20 +37,18 @@ npx supabase db push
 psql "$(npx supabase status -o json | jq -r .DB_URL)" -f supabase/seed.sql
 ```
 
-## 3. Criar o bucket de mídia
-
-**Storage** → **New bucket** → nome `media` → marque **Public bucket**.
-
-## 4. Criar o primeiro usuário (você, como owner)
+## 3. Criar o primeiro usuário (você, como owner)
 
 **Authentication** → **Users** → **Add user** → **Create new user**.
 Preencha seu e-mail e uma senha. **O primeiro usuário criado vira `owner`
 automaticamente** — é uma regra do banco (veja `criar_perfil_para_novo_usuario`
 em `0001_init.sql`). Os próximos usuários nascem como `staff`; a gestão de
-papéis pelo painel será adicionada no módulo de configurações. Até lá, não
-altere permissões diretamente em produção sem revisar as políticas RLS.
+papéis pode ser feita pelo owner em **Admin → Configurações**. O owner pode
+atribuir `admin` ou `staff`; não é possível transferir o papel `owner` pelo
+painel. Cadastros de usuários continuam sendo feitos aqui no Supabase, sem
+formulário público de criação de conta.
 
-## 5. Preencher as variáveis de ambiente
+## 4. Preencher as variáveis de ambiente
 
 **Project Settings** → **API**. Copie:
 
@@ -54,24 +56,24 @@ altere permissões diretamente em produção sem revisar as políticas RLS.
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Project API keys → Publishable key (`sb_publishable_...`) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Project API keys → `service_role` (⚠️ secreta) |
-
 Em projetos antigos, a chave `anon` também pode ser configurada em
 `NEXT_PUBLIC_SUPABASE_ANON_KEY`; ela continua aceita. Nunca coloque uma
 secret key (`sb_secret_...`) ou a `service_role` em uma variável
-`NEXT_PUBLIC_*`.
+`NEXT_PUBLIC_*`. O painel usa a chave pública com RLS e não precisa da
+`service_role`.
 
 Copie `.env.example` para `.env.local` e preencha a Project URL e a
 publishable key. Na Vercel, configure os mesmos valores em **Settings →
-Environment Variables**. A `SUPABASE_SERVICE_ROLE_KEY` só deve ser criada
-no servidor se uma operação administrativa que precise ignorar RLS for
-adicionada; o login e o cliente Supabase usam a chave pública com RLS.
+Environment Variables** com estes nomes exatos. Escolha os ambientes usados
+(Production, Preview e Development) e faça um novo deploy para aplicar as
+variáveis. A integração da Vercel pode criar outras variáveis, como
+`SUPABASE_URL`; elas não substituem automaticamente `NEXT_PUBLIC_SUPABASE_URL`.
 
 Se uma chave secreta foi colocada no `.env.example`, commitada ou enviada
 em uma conversa, revogue-a e gere outra em **Settings → API Keys**. Apagar
 o valor do arquivo atual não remove cópias em commits antigos.
 
-## 6. Conferir
+## 5. Conferir
 
 ```bash
 npm run dev
@@ -85,6 +87,41 @@ O primeiro acesso cria a conta pelo fluxo do Supabase em
 **Authentication → Users → Add user**. Depois do login, as rotas do painel
 exigem um perfil válido em `profiles`; a sessão é validada pelo Supabase no
 middleware e novamente no servidor antes de renderizar o painel.
+
+Os módulos gravam diretamente nas tabelas definidas por `0001_init.sql`.
+O site público lê as configurações e o conteúdo publicado do banco. Edições
+de seções precisam ser salvas como rascunho e então publicadas. Projetos reais
+do portfólio exigem autorização por escrito do cliente. O módulo financeiro
+é um registro interno: não conecta a bancos nem processa pagamentos.
+
+## 6. Google Search Console e descoberta
+
+1. Confirme em **Admin → Configurações → Dados da empresa** que a URL é o
+   domínio público canônico, com HTTPS. Use o mesmo domínio configurado na
+   Vercel.
+2. No [Google Search Console](https://search.google.com/search-console),
+   adicione uma propriedade de domínio e siga a verificação DNS indicada pelo
+   Google no provedor que controla o domínio. Não invente nem reutilize tokens.
+   Se preferir a verificação por meta tag, copie somente o valor de `content`
+   da tag fornecida e salve em **Admin → Configurações → SEO e compartilhamento
+   → Verificação do Google Search Console**.
+3. Envie `https://SEU-DOMINIO/sitemap.xml` em **Sitemaps** e use a inspeção de
+   URL para pedir indexação da página inicial. O site é uma landing page única;
+   suas seções com âncoras não são URLs independentes no sitemap.
+4. Confira `/robots.txt` e os relatórios de indexação e experiência no Search
+   Console depois que o domínio estiver publicado. O sitemap ajuda o Google a
+   descobrir a página, mas não garante posição nem prazo de indexação.
+5. Se o negócio for elegível para um Perfil da Empresa no Google, crie ou
+   reivindique o perfil na conta do proprietário e preencha apenas dados
+   comerciais reais. Não use endereço, avaliações ou área de atendimento
+   fictícios.
+
+O site gera metadados canônicos, Open Graph/Twitter e dados estruturados
+`Organization`/`WebSite` a partir das configurações públicas. Título, descrição
+e imagem de compartilhamento podem ser editados no admin. Configure GA4, Google
+Ads e Tag Manager somente com os IDs fornecidos por essas contas em **Google
+Analytics, Ads e Tag Manager**; o rastreamento mede visitas/campanhas e não
+substitui conteúdo útil, acessibilidade, velocidade ou uma estratégia de busca.
 
 ## Avisos de segurança
 

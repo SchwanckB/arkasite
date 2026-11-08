@@ -3,9 +3,9 @@
 Site institucional da ARKA Technologies, com painel administrativo próprio
 (financeiro, CRM, projetos e edição do site).
 
-> **Estado atual: Parte 0 (Fundação) concluída.**
-> O site público já roda, compila e pode ser publicado na Vercel.
-> O conteúdo é provisório e será reescrito pela Parte C.
+> O site público e os módulos do painel administrativo estão implementados.
+> Para usar o painel com dados reais, configure o Supabase e aplique as
+> migrações e o seed descritos em [docs/SETUP-SUPABASE.md](docs/SETUP-SUPABASE.md).
 
 ## Começando
 
@@ -37,6 +37,8 @@ Leia estes dois antes de mexer em qualquer coisa:
   Fonte única da verdade visual.
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — fluxo de dados, mapa de
   propriedade por parte, componentes disponíveis, convenções.
+- **[docs/SETUP-SUPABASE.md](docs/SETUP-SUPABASE.md)** — conexão do painel,
+  configuração do Google Search Console e passos de publicação.
 - **[docs/PENDENCIAS.md](docs/PENDENCIAS.md)** — o que depende de uma decisão
   ou de um arquivo do dono.
 

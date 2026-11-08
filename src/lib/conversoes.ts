@@ -40,10 +40,12 @@ export type EventoConversao =
 export function registrarConversao(
   evento: EventoConversao,
   parametros?: Record<string, unknown>,
+  rotuloConfigurado?: string | null,
 ) {
   if (typeof window === "undefined") return;
 
-  const rotulo = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSAO?.trim();
+  const rotulo = rotuloConfigurado?.trim()
+    || process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSAO?.trim();
 
   try {
     // Evento nomeado: aparece no GA4 e fica disponivel no Tag Manager.

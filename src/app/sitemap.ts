@@ -1,9 +1,8 @@
 /**
  * sitemap.xml - PARTE 6.
  *
- * Hoje o site e uma pagina unica com ancoras, entao o sitemap tem uma
- * entrada so. Quando existirem paginas de projeto (/portfolio/[slug]),
- * acrescente-as aqui lendo de getProjects().
+ * A landing page publica funciona como uma unica URL com secoes por ancora.
+ * O painel administrativo nunca e incluido.
  *
  * O /admin fica de fora de proposito.
  */
@@ -17,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: settings.url,
+      url: new URL("/", settings.url).toString(),
       changeFrequency: "monthly",
       priority: 1,
     },

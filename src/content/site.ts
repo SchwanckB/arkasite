@@ -31,6 +31,7 @@ export const site: SiteSettings = {
     titulo: brand.seo.home.titulo,
     descricao: brand.seo.home.descricao,
     imagemOg: "/og-image.png",
+    googleVerification: "",
   },
   mensagemWhatsapp: brand.whatsapp.mensagemPadrao,
 };
