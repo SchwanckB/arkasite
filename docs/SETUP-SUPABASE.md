@@ -17,9 +17,13 @@ o painel administrativo e o formulário de contato de verdade.
 
 No painel do Supabase, abra **SQL Editor** → **New query**.
 
-1. Cole o conteúdo de `supabase/migrations/0001_init.sql` e rode.
+1. Cole e rode cada arquivo de `supabase/migrations/`, em ordem alfabética.
 2. Cole o conteúdo de `supabase/seed.sql` e rode — isso preenche serviços,
    diferenciais, etapas, perguntas frequentes e os projetos conceito.
+
+Se `0001_init.sql` já foi aplicado anteriormente, rode também a nova migração
+`0002_profiles_role_hardening.sql`. Ela restringe a edição de papéis para
+impedir que um usuário altere seu próprio acesso diretamente pela API.
 
 Se o seu Claude Code tiver o CLI do Supabase configurado, também funciona:
 
@@ -38,8 +42,9 @@ psql "$(npx supabase status -o json | jq -r .DB_URL)" -f supabase/seed.sql
 **Authentication** → **Users** → **Add user** → **Create new user**.
 Preencha seu e-mail e uma senha. **O primeiro usuário criado vira `owner`
 automaticamente** — é uma regra do banco (veja `criar_perfil_para_novo_usuario`
-em `0001_init.sql`). Os próximos usuários nascem como `staff` e um `owner`
-precisa promovê-los pelo painel.
+em `0001_init.sql`). Os próximos usuários nascem como `staff`; a gestão de
+papéis pelo painel será adicionada no módulo de configurações. Até lá, não
+altere permissões diretamente em produção sem revisar as políticas RLS.
 
 ## 5. Preencher as variáveis de ambiente
 
@@ -48,13 +53,23 @@ precisa promovê-los pelo painel.
 | Variável | Onde está no painel |
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Project API keys → `anon` `public` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Project API keys → Publishable key (`sb_publishable_...`) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Project API keys → `service_role` (⚠️ secreta) |
 
-Copie `.env.example` para `.env.local` e preencha essas três. Na Vercel,
-acrescente as mesmas três em **Settings → Environment Variables** do projeto
-(a `SUPABASE_SERVICE_ROLE_KEY` nunca é exposta ao navegador, mas precisa
-existir no servidor).
+Em projetos antigos, a chave `anon` também pode ser configurada em
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`; ela continua aceita. Nunca coloque uma
+secret key (`sb_secret_...`) ou a `service_role` em uma variável
+`NEXT_PUBLIC_*`.
+
+Copie `.env.example` para `.env.local` e preencha a Project URL e a
+publishable key. Na Vercel, configure os mesmos valores em **Settings →
+Environment Variables**. A `SUPABASE_SERVICE_ROLE_KEY` só deve ser criada
+no servidor se uma operação administrativa que precise ignorar RLS for
+adicionada; o login e o cliente Supabase usam a chave pública com RLS.
+
+Se uma chave secreta foi colocada no `.env.example`, commitada ou enviada
+em uma conversa, revogue-a e gere outra em **Settings → API Keys**. Apagar
+o valor do arquivo atual não remove cópias em commits antigos.
 
 ## 6. Conferir
 
@@ -62,8 +77,14 @@ existir no servidor).
 npm run dev
 ```
 
-Abra `/admin` — deve aparecer a tela de login em vez da tela de
-"configuração pendente". Entre com o e-mail e senha do passo 4.
+Abra `/admin`. Com o Supabase configurado, entre com o e-mail e senha do
+primeiro usuário. Se as variáveis ainda não estiverem disponíveis, o painel
+explica como conectá-las. Não existe cadastro público.
+
+O primeiro acesso cria a conta pelo fluxo do Supabase em
+**Authentication → Users → Add user**. Depois do login, as rotas do painel
+exigem um perfil válido em `profiles`; a sessão é validada pelo Supabase no
+middleware e novamente no servidor antes de renderizar o painel.
 
 ## Avisos de segurança
 

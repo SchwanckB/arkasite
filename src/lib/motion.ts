@@ -36,6 +36,8 @@ export const duracao = {
   media: 0.38,
   /** 700ms - entrada de secao, reveals de scroll, hero. */
   secao: 0.7,
+  /** 4.8s - flutuacao decorativa e discreta do simbolo em destaque. */
+  flutuante: 4.8,
 } as const;
 
 /** Atrasos padrao para encadeamento. */

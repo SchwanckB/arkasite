@@ -13,7 +13,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { supabaseConfigurado } from "@/lib/supabase/env";
+import { credenciaisPublicas, supabaseConfigurado } from "@/lib/supabase/env";
 
 export async function middleware(request: NextRequest) {
   if (!request.nextUrl.pathname.startsWith("/admin")) {
@@ -27,10 +27,11 @@ export async function middleware(request: NextRequest) {
   }
 
   let response = NextResponse.next({ request });
+  const { url, anonKey } = credenciaisPublicas();
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    anonKey,
     {
       cookies: {
         getAll() {
@@ -61,13 +62,6 @@ export async function middleware(request: NextRequest) {
     const destino = request.nextUrl.clone();
     destino.pathname = "/admin/login";
     destino.searchParams.set("proximo", request.nextUrl.pathname);
-    return NextResponse.redirect(destino);
-  }
-
-  if (user && ehLogin) {
-    const destino = request.nextUrl.clone();
-    destino.pathname = "/admin";
-    destino.search = "";
     return NextResponse.redirect(destino);
   }
 

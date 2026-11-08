@@ -32,6 +32,9 @@ Traduzido para o site:
 - Cantos levemente arredondados (`--radius-marca`), nunca totalmente quadrados
   nem em formato de pílula, exceto em botões e etiquetas pequenas.
 - Fotografia e mockups em tons neutros, nunca saturados.
+- As logos recebem um efeito 3D discreto apenas na apresentação CSS, sem
+  editar o arquivo oficial. O símbolo em destaque também flutua suavemente;
+  ambos respeitam `prefers-reduced-motion`.
 
 ---
 
@@ -140,6 +143,10 @@ Os arquivos sem sufixo (`logo-horizontal.png` etc.) são os recortes crus, com
 o fundo sólido do brand board. Ficam guardados como referência — **o site usa
 as versões `-transparente`**.
 
+Os favicons são derivados de `logo-simbolo-transparente.png` por
+`npm run brand:assets`, centralizados no off-white e publicados nos tamanhos
+16, 32, 48, 192 e 512 px (mais o ícone Apple de 180 px).
+
 ### A regra mais importante
 
 **A logo da ARKA é verde musgo e some sobre fundo escuro.** Em qualquer seção
@@ -151,7 +158,9 @@ verde.
 
 - Redesenhar, vetorizar à mão ou "melhorar" o traço.
 - Recolorir fora das variantes acima.
-- Distorcer, inclinar, rotacionar ou aplicar sombra/brilho.
+- Editar os pixels, distorcer ou aplicar filtros diretamente no arquivo da
+  logo. A inclinação e a sombra 3D de hover são efeitos CSS no wrapper da
+  imagem, aprovados para a interface, e não alteram o asset oficial.
 - Colocar sobre foto movimentada ou fundo de baixo contraste.
 - Reescrever "ARKA TECHNOLOGIES" com fonte do sistema no lugar do arquivo.
 
@@ -196,6 +205,7 @@ duração própria.**
 | `duracao.rapida` | 180 ms | Micro-feedback |
 | `duracao.media` | 380 ms | Modais, menus, acordeões |
 | `duracao.secao` | 700 ms | Entrada de seção, reveals |
+| `duracao.flutuante` | 4,8 s | Flutuação decorativa do símbolo de destaque |
 
 Variantes prontas: `fade`, `fadeUp`, `fadeDown`, `fadeLeft`, `fadeRight`,
 `escala`, `mascara`, `linha`, mais o `stagger()` para encadear filhos.

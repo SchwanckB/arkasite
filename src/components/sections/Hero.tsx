@@ -85,7 +85,12 @@ export async function Hero() {
             className="hidden lg:flex lg:items-center lg:justify-center"
           >
             <div className="relative flex h-72 w-72 items-center justify-center rounded-full bg-areia-claro ring-1 ring-borda lg:h-80 lg:w-80">
-              <ArkaSymbol variante="circulo-musgo" tamanho={160} alt="" />
+              <ArkaSymbol
+                variante="circulo-musgo"
+                tamanho={160}
+                alt=""
+                className="arka-logo-flutuante"
+              />
             </div>
           </Reveal>
         </div>

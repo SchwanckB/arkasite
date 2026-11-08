@@ -32,22 +32,32 @@ export async function getUsuarioAtual(): Promise<UsuarioAutenticado | null> {
 
   const {
     data: { user },
+    error: erroSessao,
   } = await supabase.auth.getUser();
 
+  if (erroSessao) throw new Error(`Falha ao validar sessão: ${erroSessao.message}`);
   if (!user) return null;
 
-  const { data: perfil } = await supabase
+  const { data: perfil, error: erroPerfil } = await supabase
     .from("profiles")
     .select("nome, papel")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
+  if (erroPerfil) throw new Error(`Falha ao carregar perfil: ${erroPerfil.message}`);
   if (!perfil) return null;
+  if (
+    perfil.papel !== "owner" &&
+    perfil.papel !== "admin" &&
+    perfil.papel !== "staff"
+  ) {
+    throw new Error("O perfil não contém um papel de acesso válido.");
+  }
 
   return {
     id: user.id,
     email: user.email ?? null,
-    nome: perfil.nome,
+    nome: typeof perfil.nome === "string" ? perfil.nome : "",
     papel: perfil.papel,
   };
 }

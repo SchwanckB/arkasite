@@ -20,14 +20,13 @@ insert into site_settings (chave, valor) values
     'url', 'https://arkatechnologies.com.br'
   )),
   ('contato', jsonb_build_object(
-    -- [CONFIRMAR] ver docs/PENDENCIAS.md item 3 antes de publicar.
     'email', 'contato@arkatechnologies.com.br',
-    'whatsapp', '(00) 00000-0000',
-    'whatsapp_digitos', '5500000000000',
+    'whatsapp', '(51) 99513-9984',
+    'whatsapp_digitos', '5551995139984',
     'cidade', 'Brasil'
   )),
   ('redes', jsonb_build_object(
-    'instagram', 'https://instagram.com/arkatechnologies'
+    'instagram', 'https://instagram.com/technologiesarka'
   )),
   ('seo', jsonb_build_object(
     'titulo', 'ARKA Technologies | Sites modernos que geram resultado',
@@ -154,7 +153,16 @@ insert into projects (slug, nome, categoria, descricao, dispositivo, variante, i
    'tablet', 'landing', true, array['Landing page', 'Conversão'], true, 5),
   ('petshop-conceito', 'Pet shop', 'Serviços',
    'Site de bairro com serviços, preços e botão de agendamento sempre visível.',
-   'mobile', 'servico', true, array['Serviços', 'Agendamento'], true, 6)
+   'mobile', 'servico', true, array['Serviços', 'Agendamento'], true, 6),
+  ('imobiliaria-conceito', 'Imobiliária', 'Imóveis',
+   'Demonstração de uma vitrine imobiliária com busca de imóveis, fichas detalhadas e contato rápido com a equipe.',
+   'desktop', 'institucional', true, array['Imóveis', 'Busca', 'Captação'], true, 7),
+  ('arquitetura-conceito', 'Estúdio de arquitetura', 'Arquitetura',
+   'Demonstração de um portfólio visual para apresentar projetos, processo criativo e formas de iniciar uma conversa.',
+   'tablet', 'servico', true, array['Portfólio', 'Projetos', 'Contato'], true, 8),
+  ('consultoria-conceito', 'Consultoria', 'Negócios',
+   'Demonstração de uma landing page para explicar um serviço especializado e gerar pedidos de conversa.',
+   'mobile', 'landing', true, array['Landing page', 'Serviços', 'Conversão'], true, 9)
 on conflict (slug) do update set
   nome = excluded.nome, categoria = excluded.categoria, descricao = excluded.descricao,
   dispositivo = excluded.dispositivo, variante = excluded.variante,

@@ -53,6 +53,7 @@
   --duracao-rapida: 180ms;
   --duracao-media: 380ms;
   --duracao-secao: 700ms;
+  --duracao-flutuante: 4.8s;
 
   /* ---- Container ---- */
   --largura-conteudo: 80rem;
@@ -84,6 +85,46 @@ h4 {
   letter-spacing: -0.01em;
 }
 
+.arka-logo-3d {
+  display: inline-flex;
+  flex: none;
+  perspective: 900px;
+  transform-style: preserve-3d;
+  transition:
+    transform var(--duracao-media) var(--ease-marca),
+    filter var(--duracao-media) var(--ease-marca);
+}
+
+.arka-logo-image {
+  display: block;
+  backface-visibility: hidden;
+  transform: translateZ(8px);
+}
+
+.arka-logo-flutuante {
+  animation: arka-logo-flutuar var(--duracao-flutuante) var(--ease-marca) infinite;
+}
+
+@keyframes arka-logo-flutuar {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -6px;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .arka-logo-3d:hover,
+  .arka-logo-3d:focus-within,
+  a:focus-visible .arka-logo-3d {
+    filter: drop-shadow(0 12px 12px rgb(37 38 38 / 0.12));
+    transform: rotateX(4deg) rotateY(-6deg) translateZ(10px);
+  }
+}
+
 /* Foco visivel e consistente em toda a interface. */
 :focus-visible {
   outline: 2px solid var(--color-musgo);
@@ -112,5 +153,9 @@ h4 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .arka-logo-flutuante {
+    animation: none;
   }
 }

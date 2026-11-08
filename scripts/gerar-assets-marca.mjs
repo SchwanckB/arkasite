@@ -13,7 +13,6 @@ import { mkdir } from "node:fs/promises";
 const BRAND = "public/brand";
 const OUT = "public";
 
-const MUSGO = "#4E5A46";
 const OFF_WHITE = "#F4F3F0";
 
 /* ------------------------------------------------------------------ */
@@ -110,28 +109,36 @@ async function recortarFundo(nomeArquivo) {
 /* ------------------------------------------------------------------ */
 
 async function gerarIcones() {
-  // Simbolo branco sobre circulo musgo: melhor leitura em tamanho pequeno.
-  const fonte = `${BRAND}/simbolo-circulo-musgo.png`;
+  const simbolo = `${BRAND}/logo-simbolo-transparente.png`;
 
-  for (const size of [16, 32, 48, 192, 512]) {
-    await sharp(fonte)
-      .resize(size, size, { fit: "contain", background: MUSGO })
-      .flatten({ background: MUSGO })
+  async function gerarIcone(size, destino) {
+    const marca = await sharp(simbolo)
+      .resize({
+        width: Math.round(size * 0.82),
+        height: Math.round(size * 0.82),
+        fit: "inside",
+      })
+      .png()
+      .toBuffer();
+
+    await sharp({
+      create: {
+        width: size,
+        height: size,
+        channels: 3,
+        background: OFF_WHITE,
+      },
+    })
+      .composite([{ input: marca, gravity: "centre" }])
       .png({ compressionLevel: 9 })
-      .toFile(`${OUT}/icon-${size}.png`);
+      .toFile(destino);
   }
 
-  await sharp(fonte)
-    .resize(32, 32, { fit: "contain", background: MUSGO })
-    .flatten({ background: MUSGO })
-    .png({ compressionLevel: 9 })
-    .toFile(`${OUT}/icon.png`);
-
-  await sharp(fonte)
-    .resize(180, 180, { fit: "contain", background: MUSGO })
-    .flatten({ background: MUSGO })
-    .png({ compressionLevel: 9 })
-    .toFile(`${OUT}/apple-icon.png`);
+  for (const size of [16, 32, 48, 192, 512]) {
+    await gerarIcone(size, `${OUT}/icon-${size}.png`);
+  }
+  await gerarIcone(32, `${OUT}/icon.png`);
+  await gerarIcone(180, `${OUT}/apple-icon.png`);
 }
 
 async function gerarOg() {

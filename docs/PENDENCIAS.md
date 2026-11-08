@@ -58,23 +58,21 @@ Coloque os arquivos em `src/app/fonts/`, troque o import de
 
 ---
 
-## 3. 🔴 Dados de contato são provisórios
+## 3. 🔴 Dados de contato são parcialmente provisórios
 
 **Registrado em:** 07/11/2026 (Parte 0)
 
-Em `src/content/site.ts`, marcados com `[CONFIRMAR]`:
+WhatsApp e Instagram confirmados pelo responsável em 07/11/2026. Em
+`src/content/site.ts`, os campos ainda marcados com `[CONFIRMAR]` são:
 
-| Campo | Valor provisório |
+| Campo | Valor |
 | --- | --- |
 | `url` | `https://arkatechnologies.com.br` |
 | `contato.email` | `contato@arkatechnologies.com.br` |
-| `contato.whatsapp` | `(00) 00000-0000` |
-| `contato.whatsappDigitos` | `5500000000000` |
 | `contato.cidade` | `Brasil` |
-| `redes.instagram` | `instagram.com/arkatechnologies` |
 
-**Bloqueia a publicação:** o botão de WhatsApp leva a um número inexistente.
-Precisa ser resolvido antes de divulgar o site.
+O contato principal do site é o Instagram `@technologiesarka`. O WhatsApp é
+`(51) 99513-9984` e fica disponível como alternativa.
 
 ---
 

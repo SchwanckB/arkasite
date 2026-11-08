@@ -4,6 +4,7 @@
  * REGRA DE MARCA (docs/BRAND.md): nunca redesenhe, vetorize a mao, recolora
  * fora das variantes abaixo, nem distorca a logo. Se precisar de uma variante
  * que nao existe aqui, peca o arquivo ao dono e adicione-o em public/brand/.
+ * O efeito 3D e somente CSS no wrapper; o asset oficial permanece intacto.
  *
  * SOBRE QUAL FUNDO USAR CADA VARIANTE
  * A logo da ARKA e verde musgo: ela some sobre fundos escuros. Por isso cada
@@ -84,15 +85,20 @@ export function Logo({
   const largura = Math.round((arquivo.largura / arquivo.altura) * altura);
 
   return (
-    <Image
-      src={arquivo.src}
-      alt="ARKA Technologies"
-      width={largura}
-      height={altura}
-      priority={prioridade}
-      className={cn("select-none", className)}
+    <span
+      className={cn("arka-logo-3d", className)}
       style={{ height: altura, width: largura }}
-    />
+    >
+      <Image
+        src={arquivo.src}
+        alt="ARKA Technologies"
+        width={largura}
+        height={altura}
+        priority={prioridade}
+        className="arka-logo-image select-none"
+        style={{ height: altura, width: largura }}
+      />
+    </span>
   );
 }
 
@@ -164,15 +170,20 @@ export function ArkaSymbol({
   const largura = Math.round((arquivo.largura / arquivo.altura) * tamanho);
 
   return (
-    <Image
-      src={arquivo.src}
-      alt={alt}
-      width={largura}
-      height={tamanho}
-      priority={prioridade}
-      aria-hidden={alt === "" || undefined}
-      className={cn("select-none", className)}
+    <span
+      className={cn("arka-logo-3d", className)}
       style={{ height: tamanho, width: largura }}
-    />
+    >
+      <Image
+        src={arquivo.src}
+        alt={alt}
+        width={largura}
+        height={tamanho}
+        priority={prioridade}
+        aria-hidden={alt === "" || undefined}
+        className="arka-logo-image select-none"
+        style={{ height: tamanho, width: largura }}
+      />
+    </span>
   );
 }

@@ -7,9 +7,14 @@
  */
 
 export function supabaseConfigurado(): boolean {
+  const chavePublica =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      chavePublica &&
+      !chavePublica.startsWith("sb_secret_"),
   );
 }
 
@@ -22,11 +27,13 @@ export function supabaseAdminConfigurado(): boolean {
 /** Le a URL e a chave publica, lancando so se alguem chamar sem checar antes. */
 export function credenciaisPublicas() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const anonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !anonKey) {
+  if (!url || !anonKey || anonKey.startsWith("sb_secret_")) {
     throw new Error(
-      "Supabase nao configurado. Chame supabaseConfigurado() antes de usar o cliente.",
+      "Supabase nao configurado corretamente. Defina NEXT_PUBLIC_SUPABASE_URL e uma chave publicavel em NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (ou a anon legada em NEXT_PUBLIC_SUPABASE_ANON_KEY). Nunca use sb_secret_ nessas variaveis.",
     );
   }
 

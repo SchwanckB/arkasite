@@ -48,7 +48,7 @@ export async function Footer() {
                 rel="noopener noreferrer"
                 className="transition-colors duration-[180ms] hover:text-musgo"
               >
-                Instagram
+                Instagram @technologiesarka
               </Link>
             ) : null}
           </div>

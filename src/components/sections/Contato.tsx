@@ -31,11 +31,24 @@ export async function Contato() {
       />
 
       <Reveal className="mt-12 flex flex-wrap gap-3">
+        {settings.redes.instagram ? (
+          <BotaoLink
+            href={settings.redes.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            tamanho="lg"
+          >
+            <Icone nome="Instagram" tamanho={18} />
+            Instagram @technologiesarka
+          </BotaoLink>
+        ) : null}
+
         <BotaoLink
           href={linkWhatsapp(
             settings.contato.whatsappDigitos,
             settings.mensagemWhatsapp,
           )}
+          variante="secundario"
           tamanho="lg"
           target="_blank"
           rel="noopener noreferrer"

@@ -20,12 +20,12 @@ export const site: SiteSettings = {
   url: "https://arkatechnologies.com.br", // [CONFIRMAR] domínio oficial
   contato: {
     email: "contato@arkatechnologies.com.br", // [CONFIRMAR]
-    whatsapp: "(00) 00000-0000", // [CONFIRMAR]
-    whatsappDigitos: "5500000000000", // [CONFIRMAR]
+    whatsapp: "(51) 99513-9984",
+    whatsappDigitos: "5551995139984",
     cidade: "Brasil", // [CONFIRMAR]
   },
   redes: {
-    instagram: "https://instagram.com/arkatechnologies", // [CONFIRMAR]
+    instagram: "https://instagram.com/technologiesarka",
   },
   seo: {
     titulo: brand.seo.home.titulo,

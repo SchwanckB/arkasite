@@ -92,7 +92,7 @@ Registre no relatório final em vez de editar por conta própria.
 
 | Parte | Arquivos |
 | --- | --- |
-| **0 — Fundação** | base do projeto, `components/ui/*`, `components/brand/*`, `components/mockups/*`, `lib/motion.ts`, `lib/utils.ts`, `lib/data/*` (versão reserva), `scripts/*`, `docs/*`, `app/layout.tsx`, `app/page.tsx`, `app/globals.css` |
+| **0 — Fundação** | base do projeto, `components/ui/*`, `components/brand/*`, `components/mockups/*`, `lib/motion.ts`, `lib/utils.ts`, `lib/data/*` (versão reserva), `scripts/*`, `docs/*`, `app/layout.tsx`, `app/(site)/*`, `app/globals.css` |
 | **C — Copy** | `src/content/brand.ts` e os **textos** (só os textos) de `src/content/*.ts` |
 | **1 — Header + Hero** | `components/layout/Header.tsx`, `components/sections/Hero.tsx` |
 | **2 — Sobre / Diferenciais / Processo** | `components/sections/{Sobre,Diferenciais,Processo}.tsx` |
@@ -124,6 +124,20 @@ Registre no relatório final em vez de editar por conta própria.
 Worktrees sugeridos: `feat/copy`, `feat/hero`, `feat/sobre`, `feat/servicos`,
 `feat/portfolio`, `feat/contato`, depois `feat/backend-shell`, `feat/admin-site`,
 `feat/admin-financeiro`, `feat/admin-crm`, `feat/admin-dashboard`.
+
+### Estado do painel (07/11/2026)
+
+- Implementados: site público isolado em `app/(site)`, aviso de configuração
+  do Supabase, login sem cadastro público, validação de sessão e perfil no
+  servidor, logout, shell responsivo com navegação mobile e desktop, noindex
+  e rotas iniciais para os módulos do adendo. A migração
+  `0002_profiles_role_hardening.sql` restringe alterações de papel no banco.
+- Ainda pendentes: CRUD conectado ao banco para conteúdo e mídia (Parte 8),
+  regras e testes de cálculo financeiro (Parte 9), CRM e gestão de projetos
+  (Parte 10), e agregações reais do dashboard (Parte 11). As telas sem CRUD
+  mostram um estado vazio explícito, não dados demonstrativos.
+- Configure o Supabase conforme `docs/SETUP-SUPABASE.md`. Sem variáveis de
+  ambiente, `/admin` apresenta instruções e o site público continua disponível.
 
 ---
 
