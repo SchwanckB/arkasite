@@ -136,6 +136,11 @@ Worktrees sugeridos: `feat/copy`, `feat/hero`, `feat/sobre`, `feat/servicos`,
   conteúdo local como reserva. Alterações publicadas invalidam as tags de
   cache do site. Configure e aplique as migrações/seed conforme
   `docs/SETUP-SUPABASE.md`.
+- O CRM mostra o funil agrupado por etapa, busca e filtros de leads,
+  atividades e follow-ups vinculados a leads. O financeiro associa
+  lançamentos a clientes e projetos sem converter automaticamente uma
+  oportunidade em receita. O fluxo operacional está descrito em
+  `docs/SETUP-SUPABASE.md`.
 - Financeiro, conteúdo, portfólio e configurações são restritos a owner/admin;
   staff gerencia relacionamento, projetos, tarefas e envio de mídia. A
   criação de usuários continua no Supabase; o owner pode atribuir admin/staff

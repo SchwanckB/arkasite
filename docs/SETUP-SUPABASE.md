@@ -94,6 +94,29 @@ de seções precisam ser salvas como rascunho e então publicadas. Projetos reai
 do portfólio exigem autorização por escrito do cliente. O módulo financeiro
 é um registro interno: não conecta a bancos nem processa pagamentos.
 
+### Fluxo comercial e financeiro
+
+1. Registre contatos recebidos pelo site ou cadastre um lead em
+   **Admin → Funil**. Use busca, status e origem para organizar o atendimento;
+   a exportação CSV baixa os leads disponíveis no cadastro, somente para
+   usuários autenticados do painel.
+2. Crie uma oportunidade vinculada ao lead ou a um cliente e mova-a pelas
+   etapas do funil. Os valores do funil são estimativas comerciais, não
+   representam dinheiro recebido.
+3. Registre cada ligação, mensagem, reunião ou nota no histórico do lead e
+   agende o retorno como tarefa. O follow-up também aparece em **Tarefas**.
+4. Quando o lead se tornar cliente, use **Converter em cliente**. Cadastre o
+   projeto contratado em **Projetos** e vincule tarefas a leads, clientes e
+   projetos para acompanhar a execução.
+5. Em **Financeiro**, registre recebimentos e despesas reais, associando cada
+   lançamento ao cliente e, se aplicável, ao projeto. A seleção de um projeto
+   preenche também seu cliente. Marque o lançamento como pago somente quando
+   o recebimento ou pagamento tiver ocorrido.
+
+O dashboard do CRM considera até 300 leads e oportunidades mais recentes para
+os cartões e o funil. A exportação e o registro contábil não substituem
+conciliação bancária, emissão fiscal, contratos ou acompanhamento profissional.
+
 ## 6. Google Search Console e descoberta
 
 1. Confirme em **Admin → Configurações → Dados da empresa** que a URL é o

@@ -44,10 +44,55 @@ export async function atualizarLead(form: FormData) {
   await requireAuth();
   const dados = z.object({
     id: uuid,
-    status: z.enum(["novo", "em_contato", "qualificado", "convertido", "descartado"]),
+    status: z.enum(["novo", "em_contato", "qualificado", "descartado"]),
   }).parse({ id: valor(form, "id"), status: valor(form, "status") });
   const supabase = await createClient();
   const { error } = await supabase.from("leads").update({ status: dados.status }).eq("id", dados.id);
+  falharSeErro(error);
+  atualizarPainel("/admin/crm", "/admin");
+}
+
+export async function salvarLead(form: FormData) {
+  await requireAuth();
+  const dados = z.object({
+    id: z.union([uuid, z.literal("")]),
+    nome: textoCurto.max(120),
+    email: z.string().trim().email().max(200),
+    empresa: z.string().trim().max(200),
+    telefone: z.string().trim().max(50),
+    tipo_projeto: z.string().trim().max(120),
+    mensagem: z.string().trim().max(4000),
+    origem: textoCurto.max(80),
+    status: z.enum(["novo", "em_contato", "qualificado", "convertido", "descartado"]),
+  }).parse({
+    id: valor(form, "id"),
+    nome: valor(form, "nome"),
+    email: valor(form, "email"),
+    empresa: valor(form, "empresa"),
+    telefone: valor(form, "telefone"),
+    tipo_projeto: valor(form, "tipo_projeto"),
+    mensagem: valor(form, "mensagem"),
+    origem: valor(form, "origem"),
+    status: valor(form, "status"),
+  });
+  const supabase = await createClient();
+  if (dados.status === "convertido") {
+    if (!dados.id) throw new Error("Converta o lead em cliente pela ação própria do CRM.");
+    const { data: cliente, error } = await supabase.from("clients")
+      .select("id").eq("lead_id", dados.id).maybeSingle();
+    falharSeErro(error);
+    if (!cliente) throw new Error("Converta o lead em cliente pela ação própria do CRM.");
+  }
+  const { id, ...campos } = dados;
+  const payload = {
+    ...campos,
+    empresa: opcional(campos.empresa),
+    telefone: opcional(campos.telefone),
+    tipo_projeto: opcional(campos.tipo_projeto),
+  };
+  const { error } = id
+    ? await supabase.from("leads").update(payload).eq("id", uuid.parse(id))
+    : await supabase.from("leads").insert(payload);
   falharSeErro(error);
   atualizarPainel("/admin/crm", "/admin");
 }
@@ -98,19 +143,30 @@ export async function converterLead(form: FormData) {
     .select("id").eq("lead_id", lead.id).maybeSingle();
   falharSeErro(erroClienteExistente);
   if (clienteExistente) {
+    const { error: erroOportunidades } = await supabase.from("deals")
+      .update({ client_id: clienteExistente.id })
+      .eq("lead_id", lead.id)
+      .is("client_id", null);
+    falharSeErro(erroOportunidades);
     const { error } = await supabase.from("leads").update({ status: "convertido" }).eq("id", lead.id);
     falharSeErro(error);
     atualizarPainel("/admin/crm", "/admin/clientes", "/admin");
     return;
   }
-  const { error: erroCliente } = await supabase.from("clients").insert({
+  const { data: novoCliente, error: erroCliente } = await supabase.from("clients").insert({
     empresa: dados.empresa,
     responsavel: dados.responsavel || lead.nome,
     email: lead.email,
     telefone: lead.telefone,
     lead_id: lead.id,
-  });
+  }).select("id").single();
   falharSeErro(erroCliente);
+  if (!novoCliente) throw new Error("Não foi possível localizar o cliente criado.");
+  const { error: erroOportunidades } = await supabase.from("deals")
+    .update({ client_id: novoCliente.id })
+    .eq("lead_id", lead.id)
+    .is("client_id", null);
+  falharSeErro(erroOportunidades);
   const { error } = await supabase.from("leads").update({ status: "convertido" }).eq("id", lead.id);
   falharSeErro(error);
   atualizarPainel("/admin/crm", "/admin/clientes", "/admin");
@@ -122,18 +178,22 @@ export async function salvarNegocio(form: FormData) {
     id: z.union([uuid, z.literal("")]),
     titulo: textoCurto.max(200),
     lead_id: z.union([uuid, z.literal("")]),
+    client_id: z.union([uuid, z.literal("")]),
     etapa: z.enum(["novo", "contato_feito", "proposta_enviada", "negociacao", "ganho", "perdido"]),
     valor_cents: z.coerce.number().int().min(0),
     motivo_perda: z.string().trim().max(1000),
   }).parse({
     id: valor(form, "id"), titulo: valor(form, "titulo"),
-    lead_id: valor(form, "lead_id"), etapa: valor(form, "etapa"),
+    lead_id: valor(form, "lead_id"), client_id: valor(form, "client_id"), etapa: valor(form, "etapa"),
     valor_cents: valor(form, "valor_cents") || "0",
     motivo_perda: valor(form, "motivo_perda"),
   });
+  if (dados.etapa === "perdido" && !dados.motivo_perda) {
+    throw new Error("Informe o motivo da perda para registrar a oportunidade como perdida.");
+  }
   const supabase = await createClient();
   const payload = {
-    titulo: dados.titulo, lead_id: dados.lead_id || null,
+    titulo: dados.titulo, lead_id: dados.lead_id || null, client_id: dados.client_id || null,
     etapa: dados.etapa, valor_cents: dados.valor_cents,
     motivo_perda: opcional(dados.motivo_perda),
   };
@@ -141,7 +201,7 @@ export async function salvarNegocio(form: FormData) {
     ? await supabase.from("deals").update(payload).eq("id", dados.id)
     : await supabase.from("deals").insert(payload);
   falharSeErro(error);
-  atualizarPainel("/admin/crm", "/admin");
+  atualizarPainel("/admin/crm", "/admin/clientes", "/admin");
 }
 
 export async function excluirNegocio(form: FormData) {
@@ -272,23 +332,29 @@ export async function salvarTarefa(form: FormData) {
     vence_em: z.union([z.literal(""), z.string().date()]),
     prioridade: z.enum(["baixa", "media", "alta"]),
     client_id: z.union([uuid, z.literal("")]),
+    lead_id: z.union([uuid, z.literal("")]),
     client_project_id: z.union([uuid, z.literal("")]),
   }).parse({
     titulo: valor(form, "titulo"), descricao: valor(form, "descricao"),
     vence_em: valor(form, "vence_em"), prioridade: valor(form, "prioridade"),
-    client_id: valor(form, "client_id"), client_project_id: valor(form, "client_project_id"),
+    client_id: valor(form, "client_id"), lead_id: valor(form, "lead_id"),
+    client_project_id: valor(form, "client_project_id"),
   });
+  if (dados.lead_id && dados.client_id) {
+    throw new Error("Vincule a tarefa a um lead ou cliente, não aos dois.");
+  }
   const supabase = await createClient();
   const payload = {
     titulo: dados.titulo, descricao: opcional(dados.descricao),
     vence_em: dados.vence_em || null, prioridade: dados.prioridade,
-    client_id: dados.client_id || null, client_project_id: dados.client_project_id || null,
+    client_id: dados.client_id || null, lead_id: dados.lead_id || null,
+    client_project_id: dados.client_project_id || null,
   };
   const { error } = id
     ? await supabase.from("tasks").update(payload).eq("id", uuid.parse(id))
     : await supabase.from("tasks").insert(payload);
   falharSeErro(error);
-  atualizarPainel("/admin/tarefas", "/admin");
+  atualizarPainel("/admin/tarefas", "/admin/crm", "/admin");
 }
 
 export async function alternarTarefa(form: FormData) {
@@ -300,7 +366,7 @@ export async function alternarTarefa(form: FormData) {
     concluida: !concluida, concluida_em: !concluida ? new Date().toISOString() : null,
   }).eq("id", id);
   falharSeErro(error);
-  atualizarPainel("/admin/tarefas", "/admin");
+  atualizarPainel("/admin/tarefas", "/admin/crm", "/admin");
 }
 
 export async function excluirTarefa(form: FormData) {
@@ -308,7 +374,7 @@ export async function excluirTarefa(form: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.from("tasks").delete().eq("id", uuid.parse(valor(form, "id")));
   falharSeErro(error);
-  atualizarPainel("/admin/tarefas");
+  atualizarPainel("/admin/tarefas", "/admin/crm");
 }
 
 export async function salvarLancamento(form: FormData) {
@@ -323,19 +389,44 @@ export async function salvarLancamento(form: FormData) {
     account_id: z.union([uuid, z.literal("")]),
     category_id: z.union([uuid, z.literal("")]),
     status: z.enum(["pending", "paid", "overdue"]),
+    client_id: z.union([uuid, z.literal("")]),
+    client_project_id: z.union([uuid, z.literal("")]),
   }).parse({
     id: valor(form, "id"), tipo: valor(form, "tipo"), descricao: valor(form, "descricao"),
     amount_cents: valor(form, "amount_cents"), competencia: valor(form, "competencia"),
     vencimento: valor(form, "vencimento"), account_id: valor(form, "account_id"),
     category_id: valor(form, "category_id"), status: valor(form, "status"),
+    client_id: valor(form, "client_id"), client_project_id: valor(form, "client_project_id"),
   });
   const supabase = await createClient();
+  if (dados.category_id) {
+    const { data: categoria, error } = await supabase.from("finance_categories")
+      .select("tipo").eq("id", dados.category_id).maybeSingle();
+    falharSeErro(error);
+    if (!categoria) throw new Error("A categoria financeira selecionada não foi encontrada.");
+    if (categoria.tipo !== dados.tipo) {
+      throw new Error("A categoria selecionada não corresponde ao tipo do lançamento.");
+    }
+  }
+  let clienteDoProjeto: string | null = null;
+  if (dados.client_project_id) {
+    const { data: projeto, error } = await supabase.from("client_projects")
+      .select("id,client_id").eq("id", dados.client_project_id).maybeSingle();
+    falharSeErro(error);
+    if (!projeto) throw new Error("O projeto selecionado não pertence ao cliente informado.");
+    if (dados.client_id && projeto.client_id !== dados.client_id) {
+      throw new Error("O projeto selecionado não pertence ao cliente informado.");
+    }
+    clienteDoProjeto = projeto.client_id;
+  }
   const { id, ...dadosLancamento } = dados;
   const payload = {
     ...dadosLancamento,
     vencimento: dados.vencimento || null,
     account_id: dados.account_id || null,
     category_id: dados.category_id || null,
+    client_id: dados.client_id || clienteDoProjeto,
+    client_project_id: dados.client_project_id || null,
     pago_em: dados.status === "paid" ? new Date().toISOString().slice(0, 10) : null,
   };
   const { error } = id

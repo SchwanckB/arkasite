@@ -26,16 +26,20 @@ export default async function FinanceiroPage() {
   const usuario = await requireAuth();
   if (usuario.papel === "staff") return <AdminRestricted modulo="Financeiro" />;
   const supabase = await createClient();
-  const [lancamentosResult, contasResult, categoriasResult, resumoResult] = await Promise.all([
+  const [lancamentosResult, contasResult, categoriasResult, resumoResult, clientesResult, projetosResult] = await Promise.all([
     supabase.from("transactions").select("*,finance_accounts(nome),finance_categories(nome),clients(empresa),client_projects(nome)").order("competencia", { ascending: false }).limit(300),
     supabase.from("finance_accounts").select("*").order("ordem"),
     supabase.from("finance_categories").select("*").order("nome"),
     supabase.rpc("resumo_financeiro"),
+    supabase.from("clients").select("id,empresa").order("empresa").limit(500),
+    supabase.from("client_projects").select("id,nome,client_id").order("criado_em", { ascending: false }).limit(500),
   ]);
   if (lancamentosResult.error) throw new Error(`Falha ao carregar lançamentos: ${lancamentosResult.error.message}`);
   if (contasResult.error) throw new Error(`Falha ao carregar contas: ${contasResult.error.message}`);
   if (categoriasResult.error) throw new Error(`Falha ao carregar categorias: ${categoriasResult.error.message}`);
   if (resumoResult.error) throw new Error(`Falha ao carregar resumo financeiro: ${resumoResult.error.message}`);
+  if (clientesResult.error) throw new Error(`Falha ao carregar clientes do financeiro: ${clientesResult.error.message}`);
+  if (projetosResult.error) throw new Error(`Falha ao carregar projetos do financeiro: ${projetosResult.error.message}`);
   const lancamentos = lancamentosResult.data ?? [];
   const resumo: ResumoFinanceiro[] = resumoResult.data ?? [];
   const entradas = resumo.filter((l) => l.tipo === "in" && l.status === "paid").reduce((n, l) => n + Number(l.total_cents), 0);
@@ -63,6 +67,8 @@ export default async function FinanceiroPage() {
             <select name="status" className={classeInput()}><option value="pending">Pendente</option><option value="paid">Pago</option><option value="overdue">Atrasado</option></select>
             <select name="account_id" className={classeInput()}><option value="">Sem conta</option>{(contasResult.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
             <select name="category_id" className={classeInput()}><option value="">Sem categoria</option>{(categoriasResult.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.nome} ({c.tipo === "in" ? "entrada" : "despesa"})</option>)}</select>
+            <select name="client_id" className={classeInput()}><option value="">Sem cliente vinculado</option>{(clientesResult.data ?? []).map((cliente) => <option key={cliente.id} value={cliente.id}>{cliente.empresa}</option>)}</select>
+            <select name="client_project_id" className={classeInput()}><option value="">Sem projeto vinculado</option>{(projetosResult.data ?? []).map((projeto) => <option key={projeto.id} value={projeto.id}>{projeto.nome}</option>)}</select>
             <button className={`${botao} sm:col-span-2`}>Salvar lançamento</button>
           </form>
           <p className="mt-2 text-xs text-texto-suave">Os valores são armazenados em centavos inteiros para evitar arredondamentos.</p>
@@ -117,7 +123,7 @@ export default async function FinanceiroPage() {
           {lancamentos.map((item) => (
             <article key={item.id} className="flex flex-col justify-between gap-3 rounded-marca border border-borda bg-superficie p-4 sm:flex-row sm:items-center">
               <div><p className="font-medium text-grafite">{item.tipo === "in" ? "+" : "−"} {formatBRL(Number(item.amount_cents))} · {item.descricao}</p>
-                <p className="mt-1 text-xs text-texto-suave">{item.finance_categories?.nome ?? "Sem categoria"} · {item.finance_accounts?.nome ?? "Sem conta"} · competência {new Date(`${item.competencia}T12:00:00`).toLocaleDateString("pt-BR")}{item.vencimento ? ` · vence ${new Date(`${item.vencimento}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p></div>
+                <p className="mt-1 text-xs text-texto-suave">{item.finance_categories?.nome ?? "Sem categoria"} · {item.finance_accounts?.nome ?? "Sem conta"} · {item.clients?.empresa ?? "Sem cliente"}{item.client_projects?.nome ? ` · ${item.client_projects.nome}` : ""} · competência {new Date(`${item.competencia}T12:00:00`).toLocaleDateString("pt-BR")}{item.vencimento ? ` · vence ${new Date(`${item.vencimento}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p></div>
               <div className="flex items-center gap-2">
                 <details className="relative">
                   <summary className="cursor-pointer list-none"><span className={secundario}>Editar</span></summary>
@@ -131,6 +137,8 @@ export default async function FinanceiroPage() {
                     <select name="status" defaultValue={item.status} className={classeInput()}><option value="pending">Pendente</option><option value="paid">Pago</option><option value="overdue">Atrasado</option></select>
                     <select name="account_id" defaultValue={item.account_id ?? ""} className={classeInput()}><option value="">Sem conta</option>{(contasResult.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
                     <select name="category_id" defaultValue={item.category_id ?? ""} className={classeInput()}><option value="">Sem categoria</option>{(categoriasResult.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select>
+                    <select name="client_id" defaultValue={item.client_id ?? ""} className={classeInput()}><option value="">Sem cliente vinculado</option>{(clientesResult.data ?? []).map((cliente) => <option key={cliente.id} value={cliente.id}>{cliente.empresa}</option>)}</select>
+                    <select name="client_project_id" defaultValue={item.client_project_id ?? ""} className={classeInput()}><option value="">Sem projeto vinculado</option>{(projetosResult.data ?? []).map((projeto) => <option key={projeto.id} value={projeto.id}>{projeto.nome}</option>)}</select>
                     <button className={secundario}>Salvar edição</button>
                   </form>
                 </details>

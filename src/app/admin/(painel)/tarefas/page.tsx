@@ -12,14 +12,16 @@ export default async function TarefasPage() {
   await connection();
   await requireAuth();
   const supabase = await createClient();
-  const [tarefasResult, clientesResult, projetosResult] = await Promise.all([
-    supabase.from("tasks").select("*,clients(empresa),client_projects(nome)").order("concluida").order("vence_em", { ascending: true }),
+  const [tarefasResult, clientesResult, projetosResult, leadsResult] = await Promise.all([
+    supabase.from("tasks").select("*,clients(empresa),client_projects(nome),leads(nome)").order("concluida").order("vence_em", { ascending: true }),
     supabase.from("clients").select("id,empresa").order("empresa"),
     supabase.from("client_projects").select("id,nome").order("nome"),
+    supabase.from("leads").select("id,nome").order("criado_em", { ascending: false }).limit(300),
   ]);
   if (tarefasResult.error) throw new Error(`Falha ao carregar tarefas: ${tarefasResult.error.message}`);
   if (clientesResult.error) throw new Error(`Falha ao carregar clientes: ${clientesResult.error.message}`);
   if (projetosResult.error) throw new Error(`Falha ao carregar projetos: ${projetosResult.error.message}`);
+  if (leadsResult.error) throw new Error(`Falha ao carregar leads: ${leadsResult.error.message}`);
   const tarefas = tarefasResult.data ?? [];
   const abertas = tarefas.filter((t) => !t.concluida);
   const concluidas = tarefas.filter((t) => t.concluida);
@@ -34,6 +36,7 @@ export default async function TarefasPage() {
           <input name="vence_em" type="date" aria-label="Prazo" className={classeInput()} />
           <select name="prioridade" className={classeInput()}><option value="media">Prioridade média</option><option value="baixa">Prioridade baixa</option><option value="alta">Prioridade alta</option></select>
           <select name="client_id" className={classeInput()}><option value="">Sem cliente vinculado</option>{(clientesResult.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.empresa}</option>)}</select>
+          <select name="lead_id" className={classeInput()}><option value="">Sem lead vinculado</option>{(leadsResult.data ?? []).map((lead) => <option key={lead.id} value={lead.id}>{lead.nome}</option>)}</select>
           <select name="client_project_id" className={classeInput()}><option value="">Sem projeto vinculado</option>{(projetosResult.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}</select>
           <textarea name="descricao" maxLength={4000} placeholder="Detalhes" className={classeInput()} />
           <button className={botao}>Criar tarefa</button>
@@ -50,7 +53,7 @@ export default async function TarefasPage() {
                 </form>
                 <div><h2 className={`font-medium text-grafite ${tarefa.concluida ? "line-through" : ""}`}>{tarefa.titulo}</h2>
                   {tarefa.descricao ? <p className="mt-1 whitespace-pre-wrap text-sm text-texto-suave">{tarefa.descricao}</p> : null}
-                  <p className="mt-2 text-xs text-texto-suave">{tarefa.clients?.empresa ?? "Sem cliente"}{tarefa.client_projects?.nome ? ` · ${tarefa.client_projects.nome}` : ""} · prioridade {tarefa.prioridade}{tarefa.vence_em ? ` · prazo ${new Date(`${tarefa.vence_em}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p>
+                  <p className="mt-2 text-xs text-texto-suave">{tarefa.leads?.nome ? `Lead: ${tarefa.leads.nome}` : tarefa.clients?.empresa ?? "Sem cliente"}{tarefa.client_projects?.nome ? ` · ${tarefa.client_projects.nome}` : ""} · prioridade {tarefa.prioridade}{tarefa.vence_em ? ` · prazo ${new Date(`${tarefa.vence_em}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
@@ -63,6 +66,7 @@ export default async function TarefasPage() {
                     <input name="vence_em" type="date" defaultValue={tarefa.vence_em ?? ""} aria-label="Prazo" className={classeInput()} />
                     <select name="prioridade" defaultValue={tarefa.prioridade} aria-label="Prioridade" className={classeInput()}><option value="baixa">Baixa</option><option value="media">Média</option><option value="alta">Alta</option></select>
                     <select name="client_id" defaultValue={tarefa.client_id ?? ""} aria-label="Cliente" className={classeInput()}><option value="">Sem cliente vinculado</option>{(clientesResult.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.empresa}</option>)}</select>
+                    <select name="lead_id" defaultValue={tarefa.lead_id ?? ""} aria-label="Lead" className={classeInput()}><option value="">Sem lead vinculado</option>{(leadsResult.data ?? []).map((lead) => <option key={lead.id} value={lead.id}>{lead.nome}</option>)}</select>
                     <select name="client_project_id" defaultValue={tarefa.client_project_id ?? ""} aria-label="Projeto" className={classeInput()}><option value="">Sem projeto vinculado</option>{(projetosResult.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}</select>
                     <button className={secundario}>Salvar tarefa</button>
                   </form>
