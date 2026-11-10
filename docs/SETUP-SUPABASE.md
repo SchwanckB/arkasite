@@ -15,8 +15,8 @@ crie outro projeto só para habilitar o painel.
 No painel do Supabase, abra **SQL Editor** → **New query**.
 
 1. Cole e execute, em ordem, as migrações que ainda não foram aplicadas:
-   `0001_init.sql`, `0002_profiles_role_hardening.sql` e
-   `0003_admin_modules.sql`.
+   `0001_init.sql`, `0002_profiles_role_hardening.sql`,
+   `0003_admin_modules.sql` e `0004_crm_management.sql`.
 2. Execute o conteúdo atualizado de `supabase/seed.sql`. Ele preenche as
    seções, serviços, diferenciais, etapas, perguntas frequentes, configurações
    públicas e projetos-conceito. Conflitos preservam os dados já editados no
@@ -28,6 +28,10 @@ impedir que um usuário altere seu próprio acesso diretamente pela API.
 Para ativar os módulos, aplique também `0003_admin_modules.sql`; ela habilita
 o bucket `media`, suas políticas de acesso, a edição de papéis pelo owner e
 índices para evitar duplicar perguntas e diferenciais ao executar o seed.
+Para ativar responsáveis, ações em lote, indicadores por período e histórico
+de alterações no CRM, aplique também `0004_crm_management.sql`. Ela adiciona
+responsáveis a leads e oportunidades, permite que a equipe autenticada consulte
+os nomes do time e registra mudanças comerciais na tabela `crm_activity`.
 
 Se o CLI do Supabase estiver configurado, também funciona:
 
@@ -104,7 +108,8 @@ do portfólio exigem autorização por escrito do cliente. O módulo financeiro
    etapas do funil. Os valores do funil são estimativas comerciais, não
    representam dinheiro recebido.
 3. Registre cada ligação, mensagem, reunião ou nota no histórico do lead e
-   agende o retorno como tarefa. O follow-up também aparece em **Tarefas**.
+   agende o retorno como tarefa. O follow-up também aparece em **Tarefas** e
+   no dashboard quando estiver vencido ou marcado para hoje.
 4. Quando o lead se tornar cliente, use **Converter em cliente**. Cadastre o
    projeto contratado em **Projetos** e vincule tarefas a leads, clientes e
    projetos para acompanhar a execução.
@@ -112,6 +117,14 @@ do portfólio exigem autorização por escrito do cliente. O módulo financeiro
    lançamento ao cliente e, se aplicável, ao projeto. A seleção de um projeto
    preenche também seu cliente. Marque o lançamento como pago somente quando
    o recebimento ou pagamento tiver ocorrido.
+6. No CRM, atribua leads e oportunidades a alguém da equipe. Use os filtros
+   combinados e as ações em lote para atualizar contatos; a exportação CSV
+   respeita os filtros ativos. O desempenho por origem e etapa pode ser
+   consultado nos períodos disponíveis.
+7. Em follow-ups com prazo, use **Calendário** para baixar um arquivo `.ics`
+   e importá-lo no calendário da equipe. A exportação é autenticada e cria um
+   evento de dia inteiro; ela não sincroniza alterações futuras
+   automaticamente com Google Calendar ou Outlook.
 
 O dashboard do CRM considera até 300 leads e oportunidades mais recentes para
 os cartões e o funil. A exportação e o registro contábil não substituem

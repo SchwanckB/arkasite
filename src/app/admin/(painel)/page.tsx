@@ -15,16 +15,18 @@ export default async function AdminDashboardPage() {
   if (!usuario) throw new Error("Sua sessão expirou. Entre novamente.");
   const supabase = await createClient();
   const hoje = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
-  const [leads, projetos, tarefas, tarefasAbertas, proximasTarefas] = await Promise.all([
+  const [leads, projetos, tarefas, tarefasHoje, tarefasAbertas, proximasTarefas] = await Promise.all([
     supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "novo"),
     supabase.from("client_projects").select("id", { count: "exact", head: true }).eq("status", "ativo"),
     supabase.from("tasks").select("id", { count: "exact", head: true }).eq("concluida", false).lt("vence_em", hoje),
+    supabase.from("tasks").select("id", { count: "exact", head: true }).eq("concluida", false).eq("vence_em", hoje),
     supabase.from("tasks").select("id", { count: "exact", head: true }).eq("concluida", false),
-    supabase.from("tasks").select("id,titulo,vence_em,prioridade").eq("concluida", false).order("vence_em", { ascending: true }).limit(5),
+    supabase.from("tasks").select("id,titulo,vence_em,prioridade,lead_id,leads(nome)").eq("concluida", false).not("vence_em", "is", null).order("vence_em", { ascending: true }).limit(8),
   ]);
   if (leads.error) throw new Error(`Falha ao carregar o total de leads: ${leads.error.message}`);
   if (projetos.error) throw new Error(`Falha ao carregar projetos ativos: ${projetos.error.message}`);
   if (tarefas.error) throw new Error(`Falha ao carregar tarefas atrasadas: ${tarefas.error.message}`);
+  if (tarefasHoje.error) throw new Error(`Falha ao carregar tarefas de hoje: ${tarefasHoje.error.message}`);
   if (tarefasAbertas.error) throw new Error(`Falha ao carregar tarefas abertas: ${tarefasAbertas.error.message}`);
   if (proximasTarefas.error) throw new Error(`Falha ao carregar próximas tarefas: ${proximasTarefas.error.message}`);
 
@@ -55,11 +57,40 @@ export default async function AdminDashboardPage() {
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <StatCard rotulo="Despesas pagas" valor={saidas} icone="ArrowUpFromLine" />
         <StatCard rotulo="Tarefas abertas" valor={String(tarefasAbertas.count ?? 0)} icone="ListChecks" />
+        <StatCard rotulo="Retornos para hoje" valor={String(tarefasHoje.count ?? 0)} icone="CalendarCheck" />
       </div>
       <div className="mt-7 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-marca-lg border border-borda bg-superficie p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-3"><h2 className="font-display text-lg text-grafite">Próximas tarefas</h2><Link href="/admin/tarefas" className="text-sm font-medium text-musgo hover:underline">Ver todas</Link></div>
-          {proximasTarefas.data?.length ? <ul className="mt-4 divide-y divide-borda">{proximasTarefas.data.map((task) => <li key={task.id} className="flex justify-between gap-3 py-3 text-sm"><span className="font-medium text-grafite">{task.titulo}</span><span className={`shrink-0 ${task.vence_em && task.vence_em < new Date().toISOString().slice(0, 10) ? "text-red-700" : "text-texto-suave"}`}>{task.vence_em ? new Date(`${task.vence_em}T12:00:00`).toLocaleDateString("pt-BR") : "Sem prazo"}</span></li>)}</ul> : <p className="mt-4 text-sm text-texto-suave">Nenhuma tarefa em aberto.</p>}
+          <div className="flex items-center justify-between gap-3"><div><h2 className="font-display text-lg text-grafite">Retornos e prazos</h2><p className="mt-1 text-xs text-texto-suave">Vencidos e próximos, em ordem de urgência.</p></div><Link href="/admin/tarefas" className="text-sm font-medium text-musgo hover:underline">Ver todas</Link></div>
+          {proximasTarefas.data?.length ? (
+            <ul className="mt-4 divide-y divide-borda">
+              {proximasTarefas.data.map((task) => {
+                const atrasada = Boolean(task.vence_em && task.vence_em < hoje);
+                const paraHoje = task.vence_em === hoje;
+                return (
+                  <li key={task.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+                    <div className="min-w-0">
+                      <p className="font-medium text-grafite">{task.titulo}</p>
+                      {task.leads?.[0]?.nome ? <p className="mt-0.5 text-xs text-texto-suave">Lead: {task.leads[0].nome}</p> : null}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {atrasada || paraHoje ? (
+                        <span className={`rounded-full px-2 py-1 text-[11px] font-medium ${atrasada ? "bg-red-50 text-red-800" : "bg-musgo/10 text-musgo"}`}>
+                          {atrasada ? "Atrasada" : "Hoje"}
+                        </span>
+                      ) : null}
+                      <span className={`text-xs tabular-nums ${atrasada ? "font-medium text-red-800" : paraHoje ? "font-medium text-musgo" : "text-texto-suave"}`}>
+                        {task.vence_em ? new Date(`${task.vence_em}T12:00:00`).toLocaleDateString("pt-BR") : "Sem prazo"}
+                      </span>
+                      <a href={`/admin/tarefas/calendario?id=${task.id}`} aria-label={`Adicionar ${task.titulo} ao calendário`} className="inline-flex min-h-11 items-center rounded-marca px-2 text-xs font-medium text-musgo underline-offset-2 transition-colors hover:bg-musgo/10 hover:underline">
+                        Calendário
+                      </a>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : <p className="mt-4 text-sm text-texto-suave">Nenhuma tarefa com prazo definido.</p>}
         </section>
         <section className="rounded-marca-lg border border-borda bg-superficie p-5 sm:p-6">
           <h2 className="font-display text-lg text-grafite">Acesso rápido</h2>

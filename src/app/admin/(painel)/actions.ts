@@ -45,9 +45,50 @@ export async function atualizarLead(form: FormData) {
   const dados = z.object({
     id: uuid,
     status: z.enum(["novo", "em_contato", "qualificado", "descartado"]),
-  }).parse({ id: valor(form, "id"), status: valor(form, "status") });
+    responsavel: z.union([uuid, z.literal("")]),
+  }).parse({
+    id: valor(form, "id"),
+    status: valor(form, "status"),
+    responsavel: valor(form, "responsavel"),
+  });
   const supabase = await createClient();
-  const { error } = await supabase.from("leads").update({ status: dados.status }).eq("id", dados.id);
+  const { error } = await supabase.from("leads").update({
+    status: dados.status,
+    responsavel: dados.responsavel || null,
+  }).eq("id", dados.id);
+  falharSeErro(error);
+  atualizarPainel("/admin/crm", "/admin");
+}
+
+export async function atualizarLeadsEmLote(form: FormData) {
+  await requireAuth();
+  const ids = z.array(uuid).min(1, "Selecione ao menos um lead.").max(100, "Selecione no máximo 100 leads por vez.")
+    .parse(form.getAll("lead_ids").filter((id): id is string => typeof id === "string"));
+  const dados = z.object({
+    status: z.enum(["__manter__", "novo", "em_contato", "qualificado", "descartado"]),
+    responsavel: z.union([z.literal("__manter__"), uuid, z.literal("")]),
+  }).parse({
+    status: valor(form, "status"),
+    responsavel: valor(form, "responsavel"),
+  });
+  if (dados.status === "__manter__" && dados.responsavel === "__manter__") {
+    throw new Error("Escolha ao menos uma alteração para aplicar.");
+  }
+  const payload: { status?: string; responsavel?: string | null } = {};
+  if (dados.status !== "__manter__") payload.status = dados.status;
+  if (dados.responsavel !== "__manter__") payload.responsavel = dados.responsavel || null;
+
+  const supabase = await createClient();
+  const idsUnicos = [...new Set(ids)];
+  if (payload.status) {
+    const { data: leadsConvertidos, error: erroStatus } = await supabase
+      .from("leads").select("id").in("id", idsUnicos).eq("status", "convertido").limit(1);
+    falharSeErro(erroStatus);
+    if (leadsConvertidos?.length) {
+      throw new Error("Remova leads convertidos da seleção antes de alterar o status em lote.");
+    }
+  }
+  const { error } = await supabase.from("leads").update(payload).in("id", idsUnicos);
   falharSeErro(error);
   atualizarPainel("/admin/crm", "/admin");
 }
@@ -64,6 +105,7 @@ export async function salvarLead(form: FormData) {
     mensagem: z.string().trim().max(4000),
     origem: textoCurto.max(80),
     status: z.enum(["novo", "em_contato", "qualificado", "convertido", "descartado"]),
+    responsavel: z.union([uuid, z.literal("")]),
   }).parse({
     id: valor(form, "id"),
     nome: valor(form, "nome"),
@@ -74,6 +116,7 @@ export async function salvarLead(form: FormData) {
     mensagem: valor(form, "mensagem"),
     origem: valor(form, "origem"),
     status: valor(form, "status"),
+    responsavel: valor(form, "responsavel"),
   });
   const supabase = await createClient();
   if (dados.status === "convertido") {
@@ -89,6 +132,7 @@ export async function salvarLead(form: FormData) {
     empresa: opcional(campos.empresa),
     telefone: opcional(campos.telefone),
     tipo_projeto: opcional(campos.tipo_projeto),
+    responsavel: campos.responsavel || null,
   };
   const { error } = id
     ? await supabase.from("leads").update(payload).eq("id", uuid.parse(id))
@@ -182,11 +226,13 @@ export async function salvarNegocio(form: FormData) {
     etapa: z.enum(["novo", "contato_feito", "proposta_enviada", "negociacao", "ganho", "perdido"]),
     valor_cents: z.coerce.number().int().min(0),
     motivo_perda: z.string().trim().max(1000),
+    responsavel: z.union([uuid, z.literal("")]),
   }).parse({
     id: valor(form, "id"), titulo: valor(form, "titulo"),
     lead_id: valor(form, "lead_id"), client_id: valor(form, "client_id"), etapa: valor(form, "etapa"),
     valor_cents: valor(form, "valor_cents") || "0",
     motivo_perda: valor(form, "motivo_perda"),
+    responsavel: valor(form, "responsavel"),
   });
   if (dados.etapa === "perdido" && !dados.motivo_perda) {
     throw new Error("Informe o motivo da perda para registrar a oportunidade como perdida.");
@@ -196,6 +242,7 @@ export async function salvarNegocio(form: FormData) {
     titulo: dados.titulo, lead_id: dados.lead_id || null, client_id: dados.client_id || null,
     etapa: dados.etapa, valor_cents: dados.valor_cents,
     motivo_perda: opcional(dados.motivo_perda),
+    responsavel: dados.responsavel || null,
   };
   const { error } = dados.id
     ? await supabase.from("deals").update(payload).eq("id", dados.id)

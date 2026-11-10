@@ -212,7 +212,9 @@ export function AdminShell({
           id="conteudo"
           className="mx-auto w-full max-w-7xl px-4 py-7 pb-24 sm:px-6 lg:px-8 lg:py-9"
         >
-          {children}
+          <div key={pathname} className="admin-page-enter">
+            {children}
+          </div>
         </main>
 
         <nav
