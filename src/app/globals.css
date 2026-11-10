@@ -116,6 +116,22 @@ h4 {
   }
 }
 
+@keyframes admin-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-admin-menu-enter {
+  animation: admin-menu-enter 180ms var(--ease-marca) both;
+}
+
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .arka-logo-3d:hover,
   .arka-logo-3d:focus-within,

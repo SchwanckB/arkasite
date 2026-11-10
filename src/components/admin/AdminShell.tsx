@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
@@ -19,6 +19,20 @@ const HREFS_RAPIDOS = new Set([
   "/admin/tarefas",
 ]);
 
+function IndicadorNavegacao() {
+  const { pending } = useLinkStatus();
+
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "ml-auto h-2 w-2 shrink-0 rounded-full bg-musgo transition-opacity",
+        pending ? "animate-pulse opacity-100" : "opacity-0",
+      )}
+    />
+  );
+}
+
 function LinkMenu({
   item,
   ativo,
@@ -34,14 +48,22 @@ function LinkMenu({
       onClick={aoNavegar}
       aria-current={ativo ? "page" : undefined}
       className={cn(
-        "flex min-h-10 items-center gap-3 rounded-marca px-3 text-sm transition-colors",
+        "group relative flex min-h-11 items-center gap-3 rounded-marca px-3 text-sm transition-[background-color,color,transform] duration-200 hover:-translate-y-px active:scale-[0.98]",
         ativo
           ? "bg-musgo/10 font-medium text-musgo"
           : "text-texto-suave hover:bg-areia-claro hover:text-grafite",
       )}
     >
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-y-2 left-0 w-0.5 rounded-full bg-musgo transition-opacity",
+          ativo ? "opacity-100" : "opacity-0",
+        )}
+      />
       <Icone nome={item.icone} tamanho={18} />
       <span>{item.rotulo}</span>
+      <IndicadorNavegacao />
     </Link>
   );
 }
@@ -122,7 +144,7 @@ export function AdminShell({
               aria-controls="admin-menu-mobile"
               aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
               onClick={() => setMenuAberto((aberto) => !aberto)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-marca text-grafite hover:bg-areia-claro lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-marca text-grafite transition-colors hover:bg-areia-claro active:scale-95 lg:hidden"
             >
               <Icone nome={menuAberto ? "X" : "Menu"} tamanho={20} />
             </button>
@@ -155,27 +177,35 @@ export function AdminShell({
         </header>
 
         {menuAberto ? (
-          <nav
-            id="admin-menu-mobile"
-            aria-label="Navegação do painel"
-            className="absolute inset-x-0 z-20 border-b border-borda bg-fundo p-4 shadow-media lg:hidden"
-          >
-            {menu.map((grupo) => (
-              <section key={grupo.titulo} className="mb-4 last:mb-0">
-                <h2 className="mb-1 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-texto-suave">
-                  {grupo.titulo}
-                </h2>
-                {grupo.itens.map((item) => (
-                  <LinkMenu
-                    key={item.href}
-                    item={item}
-                    ativo={itemAtivo(item)}
-                    aoNavegar={() => setMenuAberto(false)}
-                  />
-                ))}
-              </section>
-            ))}
-          </nav>
+          <>
+            <button
+              type="button"
+              aria-label="Fechar menu"
+              onClick={() => setMenuAberto(false)}
+              className="fixed inset-x-0 top-16 bottom-16 z-10 bg-grafite/10 lg:hidden"
+            />
+            <nav
+              id="admin-menu-mobile"
+              aria-label="Navegação do painel"
+              className="fixed inset-x-0 top-16 bottom-16 z-30 overflow-y-auto border-y border-borda bg-fundo p-4 shadow-media animate-admin-menu-enter lg:hidden"
+            >
+              {menu.map((grupo) => (
+                <section key={grupo.titulo} className="mb-4 last:mb-0">
+                  <h2 className="mb-1 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-texto-suave">
+                    {grupo.titulo}
+                  </h2>
+                  {grupo.itens.map((item) => (
+                    <LinkMenu
+                      key={item.href}
+                      item={item}
+                      ativo={itemAtivo(item)}
+                      aoNavegar={() => setMenuAberto(false)}
+                    />
+                  ))}
+                </section>
+              ))}
+            </nav>
+          </>
         ) : null}
 
         <main
@@ -187,7 +217,10 @@ export function AdminShell({
 
         <nav
           aria-label="Atalhos do painel"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-borda bg-fundo/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+          className={cn(
+            "fixed inset-x-0 bottom-0 z-20 grid border-t border-borda bg-fundo/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden",
+            linksRapidos.length === 4 ? "grid-cols-4" : "grid-cols-5",
+          )}
         >
           {linksRapidos.map((item) => (
             <Link
@@ -196,10 +229,18 @@ export function AdminShell({
               aria-label={item.rotulo}
               aria-current={itemAtivo(item) ? "page" : undefined}
               className={cn(
-                "flex min-h-16 flex-col items-center justify-center gap-1 text-[10px] transition-colors",
-                itemAtivo(item) ? "text-musgo" : "text-texto-suave",
+                "relative flex min-h-16 flex-col items-center justify-center gap-1 text-[10px] transition-[color,transform] duration-200 active:scale-95",
+                itemAtivo(item) ? "font-medium text-musgo" : "text-texto-suave",
               )}
+              onClick={() => setMenuAberto(false)}
             >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute top-1 h-0.5 w-6 rounded-full bg-musgo transition-opacity",
+                  itemAtivo(item) ? "opacity-100" : "opacity-0",
+                )}
+              />
               <Icone nome={item.icone} tamanho={19} />
               <span className="max-w-full truncate">{item.rotulo}</span>
             </Link>

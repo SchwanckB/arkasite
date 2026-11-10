@@ -65,7 +65,7 @@ export default async function CrmPage({
     supabase.from("deals").select("*,leads(nome,email),clients(empresa)").order("criado_em", { ascending: false }).limit(300),
     supabase.from("interactions").select("id,lead_id,tipo,descricao,ocorreu_em").not("lead_id", "is", null).order("ocorreu_em", { ascending: false }).limit(500),
     supabase.from("tasks").select("id,lead_id,titulo,vence_em,prioridade,concluida").not("lead_id", "is", null).order("vence_em", { ascending: true, nullsFirst: false }).limit(300),
-    supabase.from("clients").select("id,empresa").order("empresa").limit(500),
+    supabase.from("clients").select("id,empresa,lead_id").order("empresa").limit(500),
   ]);
   if (leadsResult.error) throw new Error(`Falha ao carregar leads: ${leadsResult.error.message}`);
   if (dealsResult.error) throw new Error(`Falha ao carregar oportunidades: ${dealsResult.error.message}`);
@@ -76,6 +76,10 @@ export default async function CrmPage({
   const leads = leadsResult.data ?? [];
   const deals = dealsResult.data ?? [];
   const clientes = clientsResult.data ?? [];
+  const clientePorLead = new Map<string, (typeof clientes)[number]>();
+  for (const cliente of clientes) {
+    if (cliente.lead_id) clientePorLead.set(cliente.lead_id, cliente);
+  }
   const interacoesPorLead = new Map<string, typeof interactionsResult.data>();
   for (const interacao of interactionsResult.data ?? []) {
     if (!interacao.lead_id) continue;
@@ -186,11 +190,11 @@ export default async function CrmPage({
           <p className="mt-2 text-xs text-texto-suave">É possível vincular o lead e o cliente correspondente. Os valores do funil são estimativas e não geram lançamentos financeiros automaticamente.</p>
         </details>
 
-        <div className="grid gap-3 overflow-x-auto pb-2 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+        <div className="grid auto-cols-[minmax(16rem,1fr)] grid-flow-col gap-3 overflow-x-auto pb-3">
           {etapas.map((etapa) => {
             const oportunidades = deals.filter((deal) => deal.etapa === etapa.id);
             return (
-              <section key={etapa.id} aria-label={`Etapa ${etapa.nome}`} className="min-w-0 rounded-marca-lg border border-borda bg-fundo-alt p-3">
+              <section key={etapa.id} aria-label={`Etapa ${etapa.nome}`} className="min-w-[16rem] rounded-marca-lg border border-borda bg-fundo-alt p-3">
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <h3 className="text-sm font-semibold text-grafite">{etapa.nome}</h3>
                   <span className="rounded-full bg-superficie px-2 py-0.5 text-xs text-texto-suave">{oportunidades.length}</span>
@@ -203,6 +207,11 @@ export default async function CrmPage({
                       <p className="mt-1 text-xs text-texto-suave">
                         {deal.leads?.nome ?? deal.clients?.empresa ?? "Sem contato vinculado"}
                       </p>
+                      {deal.client_id ? (
+                        <Link href={`/admin/clientes#cliente-${deal.client_id}`} className="mt-1 inline-flex text-xs font-medium text-musgo underline-offset-4 hover:underline">
+                          Abrir cliente
+                        </Link>
+                      ) : null}
                       <p className="mt-2 font-semibold text-musgo">{formatBRL(Number(deal.valor_cents))}</p>
                       {deal.etapa === "perdido" && deal.motivo_perda
                         ? <p className="mt-1 text-xs text-texto-suave">Perda: {deal.motivo_perda}</p>
@@ -275,7 +284,7 @@ export default async function CrmPage({
             const tarefasLead = tarefasPorLead.get(lead.id) ?? [];
             const whatsapp = linkWhatsApp(lead.telefone, lead.nome);
             return (
-              <article key={lead.id} className="rounded-marca-lg border border-borda bg-superficie p-4 sm:p-5">
+              <article id={`lead-${lead.id}`} key={lead.id} className="scroll-mt-24 rounded-marca-lg border border-borda bg-superficie p-4 transition-[border-color,box-shadow] duration-200 hover:border-borda-forte hover:shadow-suave sm:p-5">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -299,6 +308,10 @@ export default async function CrmPage({
                           <input type="hidden" name="responsavel" value={lead.nome} />
                           <button className={secundario}>Converter em cliente</button>
                         </form>
+                      ) : clientePorLead.has(lead.id) ? (
+                        <Link href={`/admin/clientes#cliente-${clientePorLead.get(lead.id)?.id}`} className={secundario}>
+                          Abrir cadastro do cliente
+                        </Link>
                       ) : null}
                     </div>
                   </div>
