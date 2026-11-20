@@ -76,6 +76,27 @@ cores novas** e não devem aparecer em nada que o painel permita escolher:
 `musgo-escuro #3C4636` · `musgo-claro #637058` · `salvia-claro #9AA597` ·
 `areia-claro #E8E3D8` · `grafite-suave #3A3B3B`
 
+### Erro e perigo (aprovado em 20/11/2026)
+
+O painel precisava distinguir uma ação destrutiva de uma ação comum, e um
+campo com erro de um campo normal. Antes disso cada arquivo inventava um
+vermelho do Tailwind — `red-50`, `red-400`, `red-700`, `red-800` — quatro tons
+diferentes para a mesma ideia, nenhum deles da paleta.
+
+| Nome | HEX | Token | Uso |
+| --- | --- | --- | --- |
+| Erro | `#8F3F2B` | `erro` | Texto e ícone de erro, botão de confirmar exclusão |
+| Erro forte | `#73321F` | `erro-forte` | Estado pressionado do botão de perigo |
+| Erro suave | `#F3E6E1` | `erro-suave` | Fundo de aviso e de caixa de confirmação |
+
+É um terracota dessaturado, escolhido para conviver com areia e musgo em vez
+de parecer vermelho de sistema operacional.
+
+**Onde pode aparecer:** só no painel — confirmação de exclusão, erro de campo,
+aviso destrutivo. **Onde não pode:** no site público, e em nada que o painel
+ofereça como opção de cor de marca. As cinco cores da paleta continuam sendo
+as cinco cores da ARKA; isto é sinalização de interface, não identidade.
+
 ### Papéis semânticos
 
 Prefira sempre o token semântico ao token de cor crua — assim o painel
@@ -87,11 +108,42 @@ Prefira sempre o token semântico ao token de cor crua — assim o painel
 
 ### Contraste
 
-- Grafite sobre off-white: ~14:1. Seguro para qualquer tamanho.
-- Musgo sobre off-white: ~7:1. Seguro para texto e botões.
-- **Sálvia sobre off-white: ~3:1.** Só para texto grande, sobretítulos em
-  maiúsculas ou elementos decorativos. **Nunca para texto corrido.**
-- Off-white sobre musgo: ~7:1. Seguro.
+Medido sobre os valores oficiais, com as transparências já resolvidas contra
+o fundo real:
+
+| Combinação | Razão | Veredito |
+| --- | --- | --- |
+| Grafite sobre off-white | 13,68:1 | Seguro em qualquer tamanho |
+| Musgo sobre off-white | 6,58:1 | Seguro para texto e botões |
+| Texto-suave sobre off-white | 6,05:1 | Seguro |
+| Areia sobre musgo | 4,86:1 | Seguro |
+| **Sálvia sobre off-white** | **3,24:1** | **Reprova em texto** |
+| **Sálvia sobre areia-claro** | **2,81:1** | **Reprova em texto** |
+
+#### A regra do sobretítulo mudou (20/11/2026)
+
+A versão anterior deste manual autorizava sálvia em "sobretítulos em
+maiúsculas". Isso estava errado em relação à WCAG 2.2 AA: o sobretítulo tem
+12px semibold, e "texto grande" começa em 24px (ou 18,7px em negrito). Um
+rótulo de 12px precisa de 4,5:1 e tinha 3,24:1 — e 2,81:1 nas seções de fundo
+areia, onde chega a reprovar até o critério de texto grande.
+
+**Sobretítulo agora é musgo** (6,58:1), mantendo tamanho, peso e o
+`tracking-[0.18em]`. O padrão visual continua o mesmo; só o tom mudou.
+
+#### Onde a sálvia continua válida
+
+- **Ícones e elementos gráficos.** O mínimo para gráfico não textual é 3:1, e
+  a sálvia passa: 3,24:1 sobre off-white, 3,60:1 sobre branco.
+- **Texto grande de verdade.** Os números ordinais de "Sobre" têm 30px em
+  negrito; aí 3:1 basta e a sálvia passa.
+- **Nunca** para texto corrido nem para rótulo pequeno.
+
+#### Contorno de componente
+
+A WCAG 1.4.11 pede 3:1 para a borda de um elemento interativo. O botão
+secundário da faixa musgo usava `off-white/30`, que dá 1,99:1 — passou para
+`off-white/55` (≈3,4:1).
 
 ---
 
@@ -238,7 +290,9 @@ deslocamento de layout.
 - [ ] A logo está em arquivo oficial, na variante certa para o fundo.
 - [ ] Respeitei a área de respeito e o tamanho mínimo.
 - [ ] Títulos em `font-display`, corpo em Inter.
-- [ ] Nenhum texto corrido em sálvia sobre off-white.
+- [ ] Nenhum texto em sálvia: ela só vale para ícone e para texto de 24px+
+      (ou 18,7px negrito). Sobretítulo é musgo.
+- [ ] O terracota de erro, se usei, está só no painel.
 - [ ] Animações usam tokens de `motion.ts` e respeitam movimento reduzido.
 - [ ] Sem rolagem horizontal em 375px.
 - [ ] Foco de teclado visível em tudo que é interativo.

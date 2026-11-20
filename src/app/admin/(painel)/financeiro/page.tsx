@@ -1,11 +1,14 @@
 import { PageHeader } from "@/components/admin/PageHeader";
+import { formatarDataBanco } from "@/lib/dates";
+import { EstadoVazio } from "@/components/admin/EstadoVazio";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { StatCard } from "@/components/admin/StatCard";
 import { AdminRestricted } from "@/components/admin/AdminRestricted";
 import { classeInput } from "@/components/admin/FormField";
 import { MoneyField } from "@/components/admin/MoneyField";
 import { connection } from "next/server";
 import type { ResumoFinanceiro } from "@/lib/finance";
-import { formatBRL } from "@/lib/money";
+import { formatBRL, formatBRLSemSimbolo } from "@/lib/money";
 import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -18,8 +21,8 @@ import {
   salvarLancamento,
 } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 export default async function FinanceiroPage() {
   await connection();
@@ -110,7 +113,7 @@ export default async function FinanceiroPage() {
             </form>
             <ul className="mt-4 space-y-2 text-sm text-texto-suave">{(categoriasResult.data ?? []).map((c) => <li key={c.id} className="flex flex-wrap items-center justify-between gap-2">
               <form action={salvarCategoriaFinanceira} className="flex flex-1 gap-2"><input type="hidden" name="id" value={c.id} /><input name="nome" required maxLength={100} defaultValue={c.nome} aria-label="Nome da categoria" className={classeInput()} /><select name="tipo" defaultValue={c.tipo} aria-label="Tipo" className={classeInput()}><option value="in">Entrada</option><option value="out">Despesa</option></select><button className={secundario}>Salvar</button></form>
-              <form action={excluirCategoriaFinanceira}><input type="hidden" name="id" value={c.id} /><button className={secundario}>Excluir</button></form>
+              <ConfirmarAcao acao={excluirCategoriaFinanceira} campos={{ id: c.id }} rotulo="Excluir" aparencia="texto" titulo="Excluir esta categoria?" descricao={`A categoria "${c.nome}" sai da lista. Os lançamentos que usavam ela continuam existindo e ficam sem categoria.`} />
             </li>)}</ul>
           </details>
         </div>
@@ -123,7 +126,7 @@ export default async function FinanceiroPage() {
           {lancamentos.map((item) => (
             <article key={item.id} className="flex flex-col justify-between gap-3 rounded-marca border border-borda bg-superficie p-4 sm:flex-row sm:items-center">
               <div><p className="font-medium text-grafite">{item.tipo === "in" ? "+" : "−"} {formatBRL(Number(item.amount_cents))} · {item.descricao}</p>
-                <p className="mt-1 text-xs text-texto-suave">{item.finance_categories?.nome ?? "Sem categoria"} · {item.finance_accounts?.nome ?? "Sem conta"} · {item.clients?.empresa ?? "Sem cliente"}{item.client_projects?.nome ? ` · ${item.client_projects.nome}` : ""} · competência {new Date(`${item.competencia}T12:00:00`).toLocaleDateString("pt-BR")}{item.vencimento ? ` · vence ${new Date(`${item.vencimento}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p></div>
+                <p className="mt-1 text-xs text-texto-suave">{item.finance_categories?.nome ?? "Sem categoria"} · {item.finance_accounts?.nome ?? "Sem conta"} · {item.clients?.empresa ?? "Sem cliente"}{item.client_projects?.nome ? ` · ${item.client_projects.nome}` : ""} · competência {formatarDataBanco(item.competencia)}{item.vencimento ? ` · vence ${formatarDataBanco(item.vencimento)}` : ""}</p></div>
               <div className="flex items-center gap-2">
                 <details className="relative">
                   <summary className="cursor-pointer list-none"><span className={secundario}>Editar</span></summary>
@@ -145,11 +148,24 @@ export default async function FinanceiroPage() {
                 <form action={atualizarStatusLancamento} className="flex gap-2"><input type="hidden" name="id" value={item.id} />
                   <select name="status" defaultValue={item.status} aria-label="Status" className={classeInput("min-w-32")}><option value="pending">Pendente</option><option value="paid">Pago</option><option value="overdue">Atrasado</option></select><button className={secundario}>Atualizar</button>
                 </form>
-                <form action={excluirLancamento}><input type="hidden" name="id" value={item.id} /><button className={secundario}>Excluir</button></form>
+                <ConfirmarAcao
+                  acao={excluirLancamento}
+                  campos={{ id: item.id }}
+                  rotulo="Excluir"
+                  titulo="Excluir este lançamento?"
+                  descricao={`${item.tipo === "in" ? "Entrada" : "Despesa"} de ${formatBRL(Number(item.amount_cents))} — ${item.descricao}. O valor sai dos totais e do saldo da conta.`}
+                  confirmarTexto={formatBRLSemSimbolo(Number(item.amount_cents))}
+                />
               </div>
             </article>
           ))}
-          {!lancamentos.length ? <p className="rounded-marca border border-dashed border-borda p-6 text-sm text-texto-suave">Nenhum lançamento registrado.</p> : null}
+          {!lancamentos.length ? (
+            <EstadoVazio
+              icone="Wallet"
+              titulo="Nenhum lançamento ainda"
+              descricao="Registre aqui o que entra e o que sai. Comece pelo último pagamento recebido: abra “Novo lançamento”, no topo da página, e informe descrição, valor e data de competência."
+            />
+          ) : null}
         </div>
       </section>
     </>

@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { formatarDataBanco, hojeNoBanco } from "@/lib/dates";
+import { EstadoVazio } from "@/components/admin/EstadoVazio";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { classeInput } from "@/components/admin/FormField";
 import { CrmFilterBar } from "@/components/admin/CrmFilterBar";
@@ -19,7 +22,7 @@ import {
   atualizarLeadsEmLote,
 } from "../actions";
 
-const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white transition-[background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:bg-musgo-escuro hover:shadow-suave active:translate-y-0 active:scale-[0.98]";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white transition-[background-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:bg-musgo-escuro hover:shadow-suave active:translate-y-0 active:scale-[0.98]";
 const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite transition-[background-color,border-color,box-shadow,transform] duration-200 hover:-translate-y-px hover:border-borda-forte hover:bg-areia-claro hover:shadow-suave active:translate-y-0 active:scale-[0.98]";
 
 const etapas = [
@@ -186,7 +189,7 @@ export default async function CrmPage({
   const ganhos = dealsPeriodo.filter((deal) => deal.etapa === "ganho");
   const encerradas = ganhos.length + dealsPeriodo.filter((deal) => deal.etapa === "perdido").length;
   const taxaGanho = encerradas ? Math.round((ganhos.length / encerradas) * 100) : 0;
-  const hoje = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+  const hoje = hojeNoBanco();
   const tarefasAtrasadas = (tasksResult.data ?? []).filter((task) =>
     !task.concluida && task.vence_em && task.vence_em < hoje,
   ).length;
@@ -443,10 +446,15 @@ export default async function CrmPage({
                           <textarea name="motivo_perda" maxLength={1000} defaultValue={deal.motivo_perda ?? ""} placeholder="Motivo da perda" aria-label="Motivo da perda" className={classeInput()} />
                           <button className={secundario}>Salvar alterações</button>
                         </form>
-                        <form action={excluirNegocio} className="mt-2">
-                          <input type="hidden" name="id" value={deal.id} />
-                          <button className={secundario}>Excluir oportunidade</button>
-                        </form>
+                        <div className="mt-2">
+                          <ConfirmarAcao
+                            acao={excluirNegocio}
+                            campos={{ id: deal.id }}
+                            rotulo="Excluir oportunidade"
+                            titulo="Excluir esta oportunidade?"
+                            descricao={`"${deal.titulo}", de ${formatBRL(Number(deal.valor_cents))}, sai do funil junto com o histórico dela.`}
+                          />
+                        </div>
                       </details>
                       {(atividadesPorNegocio.get(deal.id) ?? []).length ? (
                         <details className="mt-3 border-t border-borda pt-2">
@@ -630,7 +638,7 @@ export default async function CrmPage({
                                 <div className="min-w-0">
                                   <p className={`break-words font-medium text-grafite ${task.concluida ? "line-through" : ""}`}>{task.titulo}</p>
                                   <p className={`mt-1 text-xs ${atrasada ? "font-medium text-red-700" : "text-texto-suave"}`}>
-                                    {task.concluida ? "Concluída" : atrasada ? "Atrasada" : task.vence_em ? `Prazo ${new Date(`${task.vence_em}T12:00:00`).toLocaleDateString("pt-BR")}` : "Sem prazo"} · prioridade {task.prioridade}
+                                    {task.concluida ? "Concluída" : atrasada ? "Atrasada" : task.vence_em ? `Prazo ${formatarDataBanco(task.vence_em)}` : "Sem prazo"} · prioridade {task.prioridade}
                                   </p>
                                 </div>
                                 <div className="flex shrink-0 items-center gap-1">
@@ -685,9 +693,15 @@ export default async function CrmPage({
               </article>
             );
           })}
-          {!leadsFiltrados.length
-            ? <p className="rounded-marca border border-dashed border-borda p-6 text-sm text-texto-suave">Nenhum lead corresponde aos filtros atuais.</p>
-            : null}
+          {!leadsFiltrados.length ? (
+            <EstadoVazio
+              icone="Inbox"
+              titulo={leads.length ? "Nenhum lead com esses filtros" : "Nenhum contato recebido ainda"}
+              descricao={leads.length
+                ? "Nenhum contato corresponde à combinação atual de busca, status, origem, responsável e período. Limpe os filtros para ver a lista inteira."
+                : "Os contatos que chegarem pelo site aparecem aqui. Enquanto isso, use “Cadastrar lead manualmente” para registrar quem falou com você por WhatsApp ou Instagram."}
+            />
+          ) : null}
         </div>
       </section>
     </>

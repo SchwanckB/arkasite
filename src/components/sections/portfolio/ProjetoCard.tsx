@@ -72,7 +72,7 @@ export function ProjetoCard({ projeto, onAbrir }: ProjetoCardProps) {
 
       <div className="mt-6 flex flex-1 flex-col">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-salvia">
+          <span className="text-rotulo font-semibold uppercase tracking-[0.14em] text-musgo">
             {projeto.categoria}
           </span>
           {projeto.isConcept ? (

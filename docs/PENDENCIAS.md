@@ -139,8 +139,6 @@ prioridade sobre a variável de ambiente — assim dá para trocar sem deploy.
 **Conversões já instrumentadas** (em `src/lib/conversoes.ts`):
 `contato_formulario`, `contato_whatsapp`, `contato_email`.
 
----
-
 ## 8. 🟡 Consentimento de cookies (LGPD)
 
 **Registrado em:** 07/11/2026
@@ -159,3 +157,52 @@ Europeia, onde isso não é opcional — será preciso:
 O ponto de entrada para isso é `src/components/tracking/Rastreamento.tsx`:
 é só condicionar a renderização ao consentimento. **Decisão do dono** —
 não implementei porque muda a experiência de quem entra no site.
+
+---
+
+## 9. 🟡 Formulário de contato ainda não existe
+
+**Registrado em:** 20/11/2026 (auditoria de UX)
+
+O site não captura lead nenhum. A seção "Contato" oferece Instagram, WhatsApp
+e e-mail; `createLead()` em `src/lib/data/index.ts` continua sendo um
+esqueleto que sempre devolve `not_configured` e não é chamado por ninguém.
+Enquanto isso, o CRM do painel nasce vazio por construção.
+
+Está planejado como **bloco 04** do plano de melhorias. Depende de duas
+decisões do dono:
+
+1. **Campos do formulário.** Proposta: nome, WhatsApp, "o que você precisa"
+   (lista dos cinco serviços + "ainda não sei") e mensagem. E-mail opcional —
+   pedir menos campos aumenta o envio.
+2. **Notificação.** Receber aviso por e-mail a cada lead, ou acompanhar só
+   pelo painel?
+
+---
+
+## 10. 🟢 Depoimentos: falta conteúdo real
+
+**Registrado em:** 20/11/2026 (auditoria de UX)
+
+O site não tem nenhuma prova social — nem depoimento, nem logo de cliente,
+nem avaliação. É a lacuna de conversão mais visível depois do formulário.
+
+A estrutura está planejada como parte do **bloco 10**, mas depende de o dono
+ter cliente real que autorize nome e depoimento **por escrito**. Vale a mesma
+regra do portfólio (item 5): nada de depoimento inventado, nem de número
+inventado. Sem conteúdo real, a seção fica oculta.
+
+---
+
+## 11. 🟢 Páginas internas por serviço e por projeto
+
+**Registrado em:** 20/11/2026 (auditoria de UX)
+
+O `sitemap.xml` tem **uma URL**. Não existe `/servicos/[slug]` nem
+`/portfolio/[slug]`, embora `getProject(slug)` já esteja escrito em
+`src/lib/data/index.ts` e sem nenhuma rota que o use. Cinco serviços e nove
+projetos não disputam busca própria.
+
+Planejado como parte do **bloco 10**.
+
+---

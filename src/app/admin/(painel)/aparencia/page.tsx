@@ -31,7 +31,7 @@ export default async function AparenciaPage() {
           <div className="rounded-marca bg-areia-claro p-4 text-sm text-grafite">
             A opção escolhida altera os botões e destaques do site. As cores continuam limitadas à paleta oficial da marca.
           </div>
-          <button className="inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-5 text-sm font-medium text-white hover:bg-musgo-escuro">Salvar aparência</button>
+          <button className="inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-5 text-sm font-medium text-off-white hover:bg-musgo-escuro">Salvar aparência</button>
         </form>
       </section>
     </>

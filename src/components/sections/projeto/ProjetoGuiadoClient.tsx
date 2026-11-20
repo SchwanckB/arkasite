@@ -39,6 +39,8 @@ const OBJETIVOS = [
 ] as const;
 
 type ProjetoGuiadoClientProps = {
+  /** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+  fundo?: "claro" | "alternado";
   whatsappDigitos: string;
   instagramUrl: string;
   instagramHandle: string;
@@ -46,6 +48,7 @@ type ProjetoGuiadoClientProps = {
 };
 
 export function ProjetoGuiadoClient({
+  fundo = "claro",
   whatsappDigitos,
   instagramUrl,
   instagramHandle,
@@ -58,10 +61,10 @@ export function ProjetoGuiadoClient({
     : "";
 
   return (
-    <Section id="projeto-guiado" fundo="alternado" largura="largo">
+    <Section id="projeto-guiado" fundo={fundo} largura="largo">
       <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div className="max-w-lg">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-salvia">
+          <p className="text-rotulo font-semibold uppercase tracking-[0.18em] text-musgo">
             Um bom começo
           </p>
           <h2 className="mt-4 text-balance font-display text-3xl leading-tight text-grafite sm:text-4xl">
@@ -105,7 +108,7 @@ export function ProjetoGuiadoClient({
                 >
                   <span className="flex items-center gap-3">
                     <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-marca ${
-                      ativo ? "bg-musgo text-white" : "bg-areia-claro text-musgo"
+                      ativo ? "bg-musgo text-off-white" : "bg-areia-claro text-musgo"
                     }`}>
                       <Icone nome={item.icone} tamanho={19} />
                     </span>
@@ -121,7 +124,7 @@ export function ProjetoGuiadoClient({
 
           {selecionado ? (
             <div className="mt-5 rounded-marca bg-fundo p-4 sm:p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-salvia">
+              <p className="text-rotulo font-semibold uppercase tracking-[0.14em] text-musgo">
                 Um ponto de partida
               </p>
               <p className="mt-2 text-sm leading-relaxed text-texto-suave">
@@ -135,7 +138,7 @@ export function ProjetoGuiadoClient({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => registrarConversao("contato_whatsapp", { placement: "project_guide" }, googleAdsConversao)}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-marca bg-musgo px-5 text-sm font-medium text-white transition-colors hover:bg-musgo-escuro"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-marca bg-musgo px-5 text-sm font-medium text-off-white transition-colors hover:bg-musgo-escuro"
                 >
                   <Icone nome="MessageCircle" tamanho={17} />
                   Continuar pelo WhatsApp

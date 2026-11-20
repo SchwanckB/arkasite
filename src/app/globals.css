@@ -21,6 +21,17 @@
   --color-areia-claro: #e8e3d8;
   --color-grafite-suave: #3a3b3b;
 
+  /*
+    Erro e perigo. Terracota dessaturado, escolhido para conviver com areia e
+    musgo sem virar "vermelho de sistema". Vive SO no painel: confirmacao de
+    exclusao, erro de campo e aviso destrutivo. Nunca aparece no site publico
+    nem em nada que o painel permita escolher como cor de marca.
+    Aprovado pelo dono em 20/11/2026 (ver docs/BRAND.md secao 2).
+  */
+  --color-erro: #8f3f2b;
+  --color-erro-forte: #73321f;
+  --color-erro-suave: #f3e6e1;
+
   /* ---- Papeis semanticos ---- */
   --color-fundo: var(--color-off-white);
   --color-fundo-alt: var(--color-areia-claro);
@@ -33,10 +44,29 @@
   --color-destaque-suave: var(--color-salvia);
   --color-borda: #e2ded4;
   --color-borda-forte: var(--color-areia);
+  --color-perigo: var(--color-erro);
+  --color-perigo-suave: var(--color-erro-suave);
 
   /* ---- Tipografia ---- */
   --font-display: var(--font-arka-display), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-arka-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /*
+    ---- Escala tipografica ----
+    Os tamanhos ja estavam em uso; aqui eles ganham nome e viram uma escala
+    unica para site e painel. Nenhum valor novo foi inventado - o antigo
+    text-[2.75rem] do titulo de secao virou o degrau "titulo-lg".
+
+    titulo-*  -> font-display (h1 e h2)
+    rotulo    -> sobretitulos em maiusculas e rotulos de indicador
+  */
+  --text-titulo-sm: 1.5rem;     /* 24px - h2 de bloco no painel */
+  --text-titulo-md: 1.875rem;   /* 30px - h2 de secao, base */
+  --text-titulo-lg: 2.25rem;    /* 36px - h2 de secao em sm, h1 do hero em base */
+  --text-titulo-xl: 2.75rem;    /* 44px - h2 de secao em lg */
+  --text-titulo-2xl: 3rem;      /* 48px - h1 do hero em sm */
+  --text-titulo-3xl: 3.75rem;   /* 60px - h1 do hero em lg */
+  --text-rotulo: 0.75rem;       /* 12px - sobretitulo em maiusculas */
 
   /* ---- Raios ---- */
   --radius-marca: 0.75rem;

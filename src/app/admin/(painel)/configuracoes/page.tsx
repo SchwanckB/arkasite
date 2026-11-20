@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/admin/PageHeader";
+import { formatarDataCurta } from "@/lib/dates";
 import { classeInput } from "@/components/admin/FormField";
 import { AdminRestricted } from "@/components/admin/AdminRestricted";
 import { connection } from "next/server";
@@ -11,8 +12,8 @@ import {
   salvarConfiguracaoSite,
 } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 type SettingsRow = { chave: string; valor: Record<string, unknown> };
 function ler(rows: SettingsRow[], chave: string): Record<string, unknown> {
@@ -82,7 +83,16 @@ export default async function ConfiguracoesPage() {
         <p className="mt-1 text-sm text-texto-suave">Crie os usuários em Supabase → Authentication → Users. Somente o owner pode atribuir papel de admin; contas novas começam como staff.</p>
         <ul className="mt-4 divide-y divide-borda">
           {(profilesResult.data ?? []).map((p) => <li key={p.id} className="flex flex-col justify-between gap-2 py-3 sm:flex-row sm:items-center">
-            <div><p className="font-medium text-grafite">{p.nome || "Sem nome"} {p.id === usuario.id ? "(você)" : ""}</p><p className="break-all font-mono text-xs text-texto-suave">ID {p.id} · {p.papel}</p></div>
+            <div className="min-w-0">
+              <p className="font-medium text-grafite">{p.nome || "Sem nome"}{p.id === usuario.id ? " (você)" : ""}</p>
+              <p className="mt-0.5 text-sm capitalize text-texto-suave">{p.papel} · na equipe desde {formatarDataCurta(p.criado_em)}</p>
+              {/* O identificador tecnico sai da frente: serve para suporte,
+                  nao para o dia a dia de quem so quer mudar um papel. */}
+              <details className="mt-1">
+                <summary className="inline-flex min-h-11 cursor-pointer items-center text-xs text-texto-suave">Identificador técnico</summary>
+                <p className="break-all font-mono text-xs text-texto-suave">{p.id}</p>
+              </details>
+            </div>
             {usuario.papel === "owner" && p.papel !== "owner" ? <form action={alterarPapelEquipe} className="flex gap-2"><input type="hidden" name="id" value={p.id} /><select name="papel" defaultValue={p.papel} className={classeInput()}><option value="staff">Staff</option><option value="admin">Admin</option></select><button className={secundario}>Alterar papel</button></form> : null}
           </li>)}
         </ul>

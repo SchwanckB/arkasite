@@ -161,13 +161,13 @@ export function ProjetoModal({
               type="button"
               onClick={fechar}
               aria-label={brand.microcopy.botoes.fechar}
-              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-marca text-grafite transition-colors duration-[180ms] hover:bg-musgo/8"
+              className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-marca text-grafite transition-colors duration-[180ms] hover:bg-musgo/8"
             >
               <Icone nome="X" tamanho={20} />
             </button>
 
             <div className="flex items-center gap-2 pr-12">
-              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-salvia">
+              <span className="text-rotulo font-semibold uppercase tracking-[0.14em] text-musgo">
                 {projeto.categoria}
               </span>
               {projeto.isConcept ? (

@@ -39,8 +39,8 @@ export function SectionHeading({
         <RevealItem
           as="span"
           className={cn(
-            "text-xs font-semibold uppercase tracking-[0.18em]",
-            invertido ? "text-areia" : "text-salvia",
+            "text-rotulo font-semibold uppercase tracking-[0.18em]",
+            invertido ? "text-areia" : "text-musgo",
           )}
         >
           {sobretitulo}
@@ -50,7 +50,7 @@ export function SectionHeading({
       <RevealItem
         as={Titulo}
         className={cn(
-          "text-balance font-display text-3xl leading-tight sm:text-4xl lg:text-[2.75rem]",
+          "text-balance font-display text-titulo-md leading-tight sm:text-titulo-lg lg:text-titulo-xl",
           invertido ? "text-texto-invertido" : "text-grafite",
         )}
       >

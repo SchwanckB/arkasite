@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/admin/PageHeader";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { classeInput } from "@/components/admin/FormField";
 import { AdminRestricted } from "@/components/admin/AdminRestricted";
 import Link from "next/link";
@@ -7,8 +8,8 @@ import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { alternarVisibilidadePortfolio, excluirProjetoPortfolio, salvarProjetoPortfolio } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 type PortfolioAdminPageProps = {
   searchParams: Promise<{ categoria?: string }>;
@@ -123,7 +124,7 @@ export default async function PortfolioAdminPage({ searchParams }: PortfolioAdmi
               <textarea name="gallery" defaultValue={(p.gallery ?? []).join("\n")} aria-label="URLs da galeria, uma por linha" className={`${classeInput()} sm:col-span-2 lg:col-span-3`} />
               <label className="flex items-start gap-2 text-sm text-grafite sm:col-span-2 lg:col-span-3"><input type="checkbox" name="autorizacao" className="mt-1" />Confirmo autorização por escrito se for trabalho de cliente.</label>
               <button className={botao}>Salvar alterações</button>
-              <button formAction={excluirProjetoPortfolio} name="id" value={p.id} className={secundario}>Excluir projeto</button>
+              <ConfirmarAcao acao={excluirProjetoPortfolio} campos={{ id: p.id }} rotulo="Excluir projeto" titulo="Excluir este projeto do portfólio?" descricao={`"${p.nome}" sai do site e do painel. Para apenas tirá-lo do ar, mude para Rascunho e salve.`} confirmarTexto={p.nome} />
             </form>
           </details>
         ))}

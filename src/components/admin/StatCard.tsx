@@ -34,7 +34,7 @@ export function StatCard({
         ) : null}
       </div>
 
-      <p className="mt-2 font-display text-2xl text-grafite">{valor}</p>
+      <p className="mt-2 font-display text-titulo-sm tabular-nums text-grafite">{valor}</p>
 
       {variacao ? (
         <p

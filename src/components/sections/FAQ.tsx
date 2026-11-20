@@ -2,7 +2,10 @@ import { getFaq, getSection } from "@/lib/data";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-export async function FAQ() {
+/** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+type FundoSecao = "claro" | "alternado";
+
+export async function FAQ({ fundo = "alternado" }: { fundo?: FundoSecao } = {}) {
   const [section, questions] = await Promise.all([
     getSection("faq"),
     getFaq(),
@@ -10,7 +13,7 @@ export async function FAQ() {
   if (!section?.visivel || !questions.length) return null;
 
   return (
-    <Section id="faq" fundo="alternado" largura="padrao">
+    <Section fundo={fundo} id="faq" largura="padrao">
       <SectionHeading
         sobretitulo={section.subtitulo}
         titulo={section.titulo}

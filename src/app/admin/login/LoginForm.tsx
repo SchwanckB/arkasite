@@ -45,8 +45,13 @@ export function LoginForm({ proximo }: { proximo?: string }) {
           className={classeInput()}
         />
       </div>
+      {/* Erro precisa parecer erro: antes usava o mesmo areia-claro de um
+          aviso neutro e passava despercebido. */}
       {estado.erro ? (
-        <p role="alert" className="rounded-marca bg-areia-claro p-3 text-sm text-grafite">
+        <p
+          role="alert"
+          className="rounded-marca border border-erro/25 bg-erro-suave p-3 text-sm text-erro-forte"
+        >
           {estado.erro}
         </p>
       ) : null}

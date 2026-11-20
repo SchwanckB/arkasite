@@ -17,7 +17,10 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-export async function Sobre() {
+/** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+type FundoSecao = "claro" | "alternado";
+
+export async function Sobre({ fundo = "alternado" }: { fundo?: FundoSecao } = {}) {
   const [secao, marca] = await Promise.all([getSection("sobre"), getBrand()]);
 
   if (!secao?.visivel) return null;
@@ -25,7 +28,7 @@ export async function Sobre() {
   const [primeiroParagrafo, ...demaisParagrafos] = marca.sobre.longo;
 
   return (
-    <Section id="sobre" fundo="alternado">
+    <Section fundo={fundo} id="sobre">
       <SectionHeading
         sobretitulo={secao.subtitulo}
         titulo={secao.titulo}
@@ -58,7 +61,7 @@ export async function Sobre() {
         <Reveal as="div">
           <Card className="flex h-full flex-col gap-6">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-salvia">
+              <span className="text-rotulo font-semibold uppercase tracking-[0.18em] text-musgo">
                 Missão
               </span>
               <p className="mt-2 text-pretty text-sm leading-relaxed text-texto-suave">
@@ -66,7 +69,7 @@ export async function Sobre() {
               </p>
             </div>
             <div className="border-t border-borda pt-6">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-salvia">
+              <span className="text-rotulo font-semibold uppercase tracking-[0.18em] text-musgo">
                 Visão
               </span>
               <p className="mt-2 text-pretty text-sm leading-relaxed text-texto-suave">
@@ -95,7 +98,7 @@ export async function Sobre() {
             </RevealItem>
           ))}
         </Reveal>
-        <p className="relative mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-texto-invertido/70">
+        <p className="relative mt-6 text-rotulo font-semibold uppercase tracking-[0.18em] text-areia">
           — {marca.manifesto.assinatura}
         </p>
       </Reveal>

@@ -10,7 +10,10 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-export async function Diferenciais() {
+/** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+type FundoSecao = "claro" | "alternado";
+
+export async function Diferenciais({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
   const [secao, itens] = await Promise.all([
     getSection("diferenciais"),
     getDifferentials(),
@@ -19,7 +22,7 @@ export async function Diferenciais() {
   if (!secao?.visivel) return null;
 
   return (
-    <Section id="diferenciais" largura="largo">
+    <Section fundo={fundo} id="diferenciais" largura="largo">
       <SectionHeading
         sobretitulo={secao.subtitulo}
         titulo={secao.titulo}

@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/admin/PageHeader";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { classeInput } from "@/components/admin/FormField";
 import { AdminRestricted } from "@/components/admin/AdminRestricted";
 import { connection } from "next/server";
@@ -18,8 +19,8 @@ import {
   salvarServico,
 } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 export default async function ConteudoSitePage() {
   await connection();
@@ -99,8 +100,11 @@ export default async function ConteudoSitePage() {
             <input name="icone" defaultValue={s.icone} className={classeInput()} /><input name="ordem" type="number" min="0" defaultValue={s.ordem} className={classeInput()} />
             <textarea name="descricao" required defaultValue={s.descricao} className={`${classeInput()} sm:col-span-2`} /><textarea name="entregas" defaultValue={(s.entregas ?? []).join("\n")} className={`${classeInput()} sm:col-span-2`} />
             <select name="publicado" defaultValue={String(s.publicado)} className={classeInput()}><option value="true">Publicado</option><option value="false">Rascunho</option></select>
-            <div className="flex gap-2"><button className={secundario}>Salvar</button><button formAction={excluirServico} name="id" value={s.id} className={secundario}>Excluir</button></div>
+            <button className={secundario}>Salvar</button>
           </form>
+          <div className="mt-3 flex justify-end border-t border-borda pt-3">
+            <ConfirmarAcao acao={excluirServico} campos={{ id: s.id }} rotulo="Excluir serviço" titulo="Excluir este serviço?" descricao={`"${s.nome}" sai do site e do painel. Para apenas tirá-lo do ar, mude para Rascunho e salve.`} confirmarTexto={s.nome} />
+          </div>
         </details>)}</div>
       </section>
 
@@ -109,9 +113,14 @@ export default async function ConteudoSitePage() {
         <details className="mb-3 rounded-marca-lg border border-borda bg-superficie p-5"><summary className="cursor-pointer font-medium text-musgo">Adicionar diferencial</summary>
           <form action={salvarDiferencial} className="mt-4 grid gap-3 sm:grid-cols-2"><input name="titulo" required placeholder="Título" className={classeInput()} /><input name="icone" defaultValue="Circle" placeholder="Ícone" className={classeInput()} /><textarea name="descricao" required placeholder="Descrição" className={classeInput()} /><textarea name="apoio" placeholder="Frase de apoio" className={classeInput()} /><input name="ordem" type="number" min="0" defaultValue="0" className={classeInput()} /><button className={botao}>Adicionar</button></form>
         </details>
-        <div className="grid gap-2 sm:grid-cols-2">{(diferenciais.data ?? []).map((d) => <form key={d.id} action={salvarDiferencial} className="grid gap-2 rounded-marca border border-borda bg-superficie p-4">
-          <input type="hidden" name="id" value={d.id} /><input name="titulo" required defaultValue={d.titulo} className={classeInput()} /><input name="icone" defaultValue={d.icone} className={classeInput()} /><textarea name="descricao" required defaultValue={d.descricao} className={classeInput()} /><input name="apoio" defaultValue={d.apoio ?? ""} placeholder="Apoio" className={classeInput()} /><input name="ordem" type="number" min="0" defaultValue={d.ordem} className={classeInput()} /><div className="flex gap-2"><button className={secundario}>Salvar</button><button formAction={excluirDiferencial} name="id" value={d.id} className={secundario}>Excluir</button></div>
-        </form>)}</div>
+        <div className="grid gap-2 sm:grid-cols-2">{(diferenciais.data ?? []).map((d) => <div key={d.id} className="rounded-marca border border-borda bg-superficie p-4">
+          <form action={salvarDiferencial} className="grid gap-2">
+            <input type="hidden" name="id" value={d.id} /><input name="titulo" required defaultValue={d.titulo} aria-label="Título do diferencial" className={classeInput()} /><input name="icone" defaultValue={d.icone} aria-label="Ícone" className={classeInput()} /><textarea name="descricao" required defaultValue={d.descricao} aria-label="Descrição" className={classeInput()} /><input name="apoio" defaultValue={d.apoio ?? ""} placeholder="Apoio" aria-label="Frase de apoio" className={classeInput()} /><input name="ordem" type="number" min="0" defaultValue={d.ordem} aria-label="Ordem" className={classeInput()} /><button className={secundario}>Salvar</button>
+          </form>
+          <div className="mt-3 flex justify-end border-t border-borda pt-3">
+            <ConfirmarAcao acao={excluirDiferencial} campos={{ id: d.id }} rotulo="Excluir" aparencia="texto" titulo="Excluir este diferencial?" descricao={`"${d.titulo}" sai da seção "Por que a ARKA" no site.`} />
+          </div>
+        </div>)}</div>
       </section>
 
       <section className="mb-9">
@@ -126,9 +135,23 @@ export default async function ConteudoSitePage() {
         <details className="mb-3 rounded-marca-lg border border-borda bg-superficie p-5"><summary className="cursor-pointer font-medium text-musgo">Adicionar pergunta</summary>
           <form action={salvarFaq} className="mt-4 grid gap-3 sm:grid-cols-2"><input name="pergunta" required placeholder="Pergunta" className={classeInput()} /><input name="ordem" type="number" min="0" defaultValue="0" className={classeInput()} /><textarea name="resposta" required placeholder="Resposta" className={`${classeInput()} sm:col-span-2`} /><select name="publicado" className={classeInput()}><option value="true">Publicado</option><option value="false">Rascunho</option></select><button className={botao}>Adicionar</button></form>
         </details>
-        <div className="space-y-2">{(faqs.data ?? []).map((f) => <form key={f.id} action={salvarFaq} className="grid gap-2 rounded-marca border border-borda bg-superficie p-4 sm:grid-cols-[1fr_1fr_90px_130px_auto]">
-          <input type="hidden" name="id" value={f.id} /><input name="pergunta" required defaultValue={f.pergunta} className={classeInput()} /><textarea name="resposta" required defaultValue={f.resposta} className={classeInput()} /><input name="ordem" type="number" min="0" defaultValue={f.ordem} className={classeInput()} /><select name="publicado" defaultValue={String(f.publicado)} className={classeInput()}><option value="true">Publicado</option><option value="false">Rascunho</option></select><div className="flex gap-2"><button className={secundario}>Salvar</button><button formAction={excluirFaq} name="id" value={f.id} className={secundario}>Excluir</button></div>
-        </form>)}</div>
+        <div className="space-y-2">{(faqs.data ?? []).map((f) => <div key={f.id} className="rounded-marca border border-borda bg-superficie p-4">
+          <form action={salvarFaq} className="grid gap-2">
+            <input type="hidden" name="id" value={f.id} />
+            <input name="pergunta" required defaultValue={f.pergunta} aria-label="Pergunta" className={classeInput()} />
+            {/* A resposta ocupa a largura toda: antes ficava espremida numa
+                coluna de grade e nao dava para ler o que estava sendo editado. */}
+            <textarea name="resposta" required defaultValue={f.resposta} aria-label="Resposta" className={`${classeInput()} min-h-24`} />
+            <div className="grid gap-2 sm:grid-cols-[90px_130px_auto]">
+              <input name="ordem" type="number" min="0" defaultValue={f.ordem} aria-label="Ordem" className={classeInput()} />
+              <select name="publicado" defaultValue={String(f.publicado)} aria-label="Publicação" className={classeInput()}><option value="true">Publicado</option><option value="false">Rascunho</option></select>
+              <button className={secundario}>Salvar</button>
+            </div>
+          </form>
+          <div className="mt-3 flex justify-end border-t border-borda pt-3">
+            <ConfirmarAcao acao={excluirFaq} campos={{ id: f.id }} rotulo="Excluir" aparencia="texto" titulo="Excluir esta pergunta?" descricao={`"${f.pergunta}" sai da seção de perguntas frequentes. Para apenas tirá-la do ar, mude para Rascunho e salve.`} />
+          </div>
+        </div>)}</div>
       </section>
     </>
   );

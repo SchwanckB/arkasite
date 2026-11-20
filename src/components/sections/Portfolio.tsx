@@ -18,7 +18,10 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 import { PortfolioGaleria } from "./portfolio/PortfolioGaleria";
 
-export async function Portfolio() {
+/** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+type FundoSecao = "claro" | "alternado";
+
+export async function Portfolio({ fundo = "alternado" }: { fundo?: FundoSecao } = {}) {
   const [secao, projetos] = await Promise.all([
     getSection("portfolio"),
     getProjects(),
@@ -27,7 +30,7 @@ export async function Portfolio() {
   if (!secao?.visivel) return null;
 
   return (
-    <Section id="portfolio" fundo="alternado" largura="largo">
+    <Section fundo={fundo} id="portfolio" largura="largo">
       <SectionHeading
         sobretitulo={secao.subtitulo}
         titulo={secao.titulo}

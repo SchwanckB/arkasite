@@ -1,12 +1,14 @@
 import { PageHeader } from "@/components/admin/PageHeader";
+import { formatarDataBanco } from "@/lib/dates";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { classeInput } from "@/components/admin/FormField";
 import { connection } from "next/server";
 import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { alternarTarefa, excluirTarefa, salvarTarefa } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 export default async function TarefasPage() {
   await connection();
@@ -53,7 +55,7 @@ export default async function TarefasPage() {
                 </form>
                 <div><h2 className={`font-medium text-grafite ${tarefa.concluida ? "line-through" : ""}`}>{tarefa.titulo}</h2>
                   {tarefa.descricao ? <p className="mt-1 whitespace-pre-wrap text-sm text-texto-suave">{tarefa.descricao}</p> : null}
-                  <p className="mt-2 text-xs text-texto-suave">{tarefa.leads?.nome ? `Lead: ${tarefa.leads.nome}` : tarefa.clients?.empresa ?? "Sem cliente"}{tarefa.client_projects?.nome ? ` · ${tarefa.client_projects.nome}` : ""} · prioridade {tarefa.prioridade}{tarefa.vence_em ? ` · prazo ${new Date(`${tarefa.vence_em}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}</p>
+                  <p className="mt-2 text-xs text-texto-suave">{tarefa.leads?.nome ? `Lead: ${tarefa.leads.nome}` : tarefa.clients?.empresa ?? "Sem cliente"}{tarefa.client_projects?.nome ? ` · ${tarefa.client_projects.nome}` : ""} · prioridade {tarefa.prioridade}{tarefa.vence_em ? ` · prazo ${formatarDataBanco(tarefa.vence_em)}` : ""}</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
@@ -71,7 +73,7 @@ export default async function TarefasPage() {
                     <button className={secundario}>Salvar tarefa</button>
                   </form>
                 </details>
-                <form action={excluirTarefa}><input type="hidden" name="id" value={tarefa.id} /><button className={secundario}>Excluir</button></form>
+                <ConfirmarAcao acao={excluirTarefa} campos={{ id: tarefa.id }} rotulo="Excluir" aparencia="texto" titulo="Excluir esta tarefa?" descricao={`"${tarefa.titulo}" sai da lista. Para apenas tirá-la do caminho, marque como concluída.`} />
               </div>
             </div>
           </article>

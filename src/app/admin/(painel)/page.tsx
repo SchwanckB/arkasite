@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { formatarDataBanco, hojeNoBanco } from "@/lib/dates";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -12,9 +14,11 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminDashboardPage() {
   await connection();
   const usuario = await getUsuarioAtual();
-  if (!usuario) throw new Error("Sua sessão expirou. Entre novamente.");
+  // Sessao expirada e fluxo normal, nao erro: volta ao login guardando o
+  // destino para a pessoa cair de volta aqui depois de entrar.
+  if (!usuario) redirect("/admin/login?proximo=/admin");
   const supabase = await createClient();
-  const hoje = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+  const hoje = hojeNoBanco();
   const [leads, projetos, tarefas, tarefasHoje, tarefasAbertas, proximasTarefas] = await Promise.all([
     supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "novo"),
     supabase.from("client_projects").select("id", { count: "exact", head: true }).eq("status", "ativo"),
@@ -30,9 +34,10 @@ export default async function AdminDashboardPage() {
   if (tarefasAbertas.error) throw new Error(`Falha ao carregar tarefas abertas: ${tarefasAbertas.error.message}`);
   if (proximasTarefas.error) throw new Error(`Falha ao carregar próximas tarefas: ${proximasTarefas.error.message}`);
 
-  let entradas = "Restrito";
-  let saidas = "Restrito";
-  if (usuario.papel === "owner" || usuario.papel === "admin") {
+  const vePainelFinanceiro = usuario.papel === "owner" || usuario.papel === "admin";
+  let entradas = "";
+  let saidas = "";
+  if (vePainelFinanceiro) {
     const { data: lancamentos, error } = await supabase.rpc("resumo_financeiro");
     if (error) throw new Error(`Falha ao carregar resumo financeiro: ${error.message}`);
     const resumo: ResumoFinanceiro[] = lancamentos ?? [];
@@ -52,12 +57,16 @@ export default async function AdminDashboardPage() {
         <StatCard rotulo="Leads novos" valor={String(leads.count ?? 0)} icone="Inbox" />
         <StatCard rotulo="Projetos ativos" valor={String(projetos.count ?? 0)} icone="Briefcase" />
         <StatCard rotulo="Tarefas atrasadas" valor={String(quantidadeAtrasada)} icone="AlarmClock" />
-        <StatCard rotulo="Entradas pagas" valor={entradas} icone="ArrowDownToLine" />
-      </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <StatCard rotulo="Despesas pagas" valor={saidas} icone="ArrowUpFromLine" />
         <StatCard rotulo="Tarefas abertas" valor={String(tarefasAbertas.count ?? 0)} icone="ListChecks" />
+      </div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard rotulo="Retornos para hoje" valor={String(tarefasHoje.count ?? 0)} icone="CalendarCheck" />
+        {vePainelFinanceiro ? (
+          <>
+            <StatCard rotulo="Entradas pagas (total)" valor={entradas} icone="ArrowDownToLine" />
+            <StatCard rotulo="Despesas pagas (total)" valor={saidas} icone="ArrowUpFromLine" />
+          </>
+        ) : null}
       </div>
       <div className="mt-7 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-marca-lg border border-borda bg-superficie p-5 sm:p-6">
@@ -80,7 +89,7 @@ export default async function AdminDashboardPage() {
                         </span>
                       ) : null}
                       <span className={`text-xs tabular-nums ${atrasada ? "font-medium text-red-800" : paraHoje ? "font-medium text-musgo" : "text-texto-suave"}`}>
-                        {task.vence_em ? new Date(`${task.vence_em}T12:00:00`).toLocaleDateString("pt-BR") : "Sem prazo"}
+                        {task.vence_em ? formatarDataBanco(task.vence_em) : "Sem prazo"}
                       </span>
                       <a href={`/admin/tarefas/calendario?id=${task.id}`} aria-label={`Adicionar ${task.titulo} ao calendário`} className="inline-flex min-h-11 items-center rounded-marca px-2 text-xs font-medium text-musgo underline-offset-2 transition-colors hover:bg-musgo/10 hover:underline">
                         Calendário
@@ -95,7 +104,7 @@ export default async function AdminDashboardPage() {
         <section className="rounded-marca-lg border border-borda bg-superficie p-5 sm:p-6">
           <h2 className="font-display text-lg text-grafite">Acesso rápido</h2>
           <div className="mt-4 grid gap-2">{atalhos.map((item) => <Link key={item.href} href={item.href} className="flex min-h-11 items-center justify-between rounded-marca border border-borda px-3 text-sm font-medium text-musgo transition-colors hover:bg-areia-claro">{item.rotulo}<span aria-hidden>→</span></Link>)}</div>
-          {usuario.papel === "staff" ? <p className="mt-4 text-xs text-texto-suave">Os valores financeiros são visíveis somente para owner e admin.</p> : null}
+          {!vePainelFinanceiro ? <p className="mt-4 text-xs text-texto-suave">Os valores financeiros aparecem somente para owner e admin.</p> : null}
         </section>
       </div>
     </>

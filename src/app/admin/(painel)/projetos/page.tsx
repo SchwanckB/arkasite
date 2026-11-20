@@ -1,4 +1,7 @@
 import { PageHeader } from "@/components/admin/PageHeader";
+import { formatarDataCurta } from "@/lib/dates";
+import { EstadoVazio } from "@/components/admin/EstadoVazio";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { classeInput } from "@/components/admin/FormField";
 import { MoneyField } from "@/components/admin/MoneyField";
 import { connection } from "next/server";
@@ -7,8 +10,8 @@ import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { excluirProjetoCliente, salvarProjetoCliente } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 export default async function ProjetosPage() {
   await connection();
@@ -52,7 +55,7 @@ export default async function ProjetosPage() {
           <article key={projeto.id} className="rounded-marca-lg border border-borda bg-superficie p-5">
             <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
               <div><h2 className="font-medium text-grafite">{projeto.nome}</h2><p className="text-sm text-texto-suave">{projeto.clients?.empresa ?? "Cliente"} · {formatBRL(Number(projeto.valor_cents))}</p></div>
-              <span className="text-xs text-texto-suave">Criado em {new Date(projeto.criado_em).toLocaleDateString("pt-BR")}</span>
+              <span className="text-xs text-texto-suave">Criado em {formatarDataCurta(projeto.criado_em)}</span>
             </div>
             <form action={salvarProjetoCliente} className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
               <input type="hidden" name="id" value={projeto.id} />
@@ -62,11 +65,30 @@ export default async function ProjetosPage() {
               <select name="status" defaultValue={projeto.status} aria-label="Status" className={classeInput()}><option value="ativo">Ativo</option><option value="pausado">Pausado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select>
               <MoneyField name="valor_cents" label="Valor contratado" initialCentavos={Number(projeto.valor_cents)} />
               <input name="prazo" type="date" defaultValue={projeto.prazo ?? ""} aria-label="Prazo" className={classeInput()} />
-              <div className="flex gap-2"><button className={secundario}>Salvar</button><button formAction={excluirProjetoCliente} name="id" value={projeto.id} className={secundario}>Excluir</button></div>
+              <button className={secundario}>Salvar</button>
             </form>
+            {/* Fora do formulario de edicao: apagar o projeto leva as tarefas
+                vinculadas junto (cascata no banco). */}
+            <div className="mt-3 flex justify-end border-t border-borda pt-3">
+              <ConfirmarAcao
+                acao={excluirProjetoCliente}
+                campos={{ id: projeto.id }}
+                rotulo="Excluir projeto"
+                titulo="Excluir este projeto?"
+                descricao={`"${projeto.nome}" sai do painel. Os lançamentos financeiros continuam existindo e ficam sem projeto vinculado.`}
+                consequencias={["Tarefas vinculadas a este projeto"]}
+                confirmarTexto={projeto.nome}
+              />
+            </div>
           </article>
         ))}
-        {!projetosResult.data?.length ? <p className="rounded-marca border border-dashed border-borda p-6 text-sm text-texto-suave">Nenhum projeto de cliente cadastrado.</p> : null}
+        {!projetosResult.data?.length ? (
+          <EstadoVazio
+            icone="Briefcase"
+            titulo="Nenhum projeto em andamento"
+            descricao="Cadastre um projeto para acompanhar etapa, prazo e valor contratado de cada trabalho. É preciso ter pelo menos um cliente cadastrado antes."
+          />
+        ) : null}
       </div>
     </>
   );

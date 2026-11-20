@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { EstadoVazio } from "@/components/admin/EstadoVazio";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { connection } from "next/server";
 
 import { PageHeader } from "@/components/admin/PageHeader";
@@ -7,8 +9,8 @@ import { requireAuth } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { atualizarAltMidia, excluirMidia, enviarMidia } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 export default async function MidiaPage() {
   await connection();
@@ -34,18 +36,24 @@ export default async function MidiaPage() {
         {(arquivos ?? []).map((arquivo) => (
           <article key={arquivo.id} className="overflow-hidden rounded-marca-lg border border-borda bg-superficie">
             <div className="relative aspect-[4/3] bg-fundo-alt">
-              <Image src={arquivo.url} alt={arquivo.alt} fill unoptimized sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover" />
+              <Image src={arquivo.url} alt={arquivo.alt} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover" />
             </div>
             <div className="p-3">
               <form action={atualizarAltMidia} className="mt-2 flex gap-2"><input type="hidden" name="id" value={arquivo.id} /><input name="alt" required maxLength={300} defaultValue={arquivo.alt} aria-label="Texto alternativo" className={classeInput()} /><button className={secundario}>Salvar</button></form>
               <p className="mt-1 text-xs text-texto-suave">{arquivo.tipo} · {Math.ceil(Number(arquivo.tamanho) / 1024)} KB</p>
               <input readOnly value={arquivo.url} aria-label={`URL de ${arquivo.alt}`} className={`${classeInput()} mt-2 text-xs`} />
-              {usuario.papel !== "staff" ? <form action={excluirMidia} className="mt-2"><input type="hidden" name="id" value={arquivo.id} /><button className={secundario}>Excluir mídia</button></form> : null}
+              {usuario.papel !== "staff" ? <div className="mt-2"><ConfirmarAcao acao={excluirMidia} campos={{ id: arquivo.id }} rotulo="Excluir mídia" aparencia="texto" titulo="Excluir esta imagem?" descricao={`"${arquivo.alt}" sai da biblioteca e do Storage. Projetos que usam esta imagem ficam sem capa.`} /></div> : null}
             </div>
           </article>
         ))}
       </div>
-      {!arquivos?.length ? <p className="rounded-marca border border-dashed border-borda p-6 text-sm text-texto-suave">Nenhum arquivo na biblioteca.</p> : null}
+      {!arquivos?.length ? (
+        <EstadoVazio
+          icone="Images"
+          titulo="Biblioteca vazia"
+          descricao="Envie aqui as capas e fotos que o portfólio vai usar. Depois do envio, copie o endereço da imagem e cole no campo de capa do projeto."
+        />
+      ) : null}
       <p className="mt-6 text-xs text-texto-suave">O bucket público exibe imagens publicadas; somente usuários autenticados podem enviar e somente gestores podem excluir.</p>
     </>
   );

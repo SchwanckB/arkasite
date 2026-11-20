@@ -16,8 +16,13 @@ const VARIANTES: Record<Variante, string> = {
     "bg-off-white text-musgo hover:bg-areia-claro shadow-suave hover:shadow-media",
 };
 
+/*
+  Alturas em multiplos de 4 e nenhuma abaixo de 44px: esse e o piso de alvo
+  de toque adotado no projeto. O "sm" vinha com 36px e era justamente o
+  tamanho usado no CTA do cabecalho, o botao mais tocado do site.
+*/
 const TAMANHOS: Record<Tamanho, string> = {
-  sm: "h-9 px-4 text-sm",
+  sm: "h-11 px-4 text-sm",
   md: "h-11 px-6 text-sm",
   lg: "h-13 px-8 text-base",
 };

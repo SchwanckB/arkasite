@@ -3,6 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
 
+import { Logo } from "@/components/brand/Logo";
 import { supabaseConfigurado } from "@/lib/supabase/env";
 
 export const metadata: Metadata = {
@@ -16,10 +17,8 @@ function ConfiguracaoPendente() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-5 py-12">
       <section className="w-full rounded-marca-lg border border-borda bg-superficie p-6 shadow-suave sm:p-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-salvia">
-          ARKA Technologies
-        </p>
-        <h1 className="mt-3 font-display text-2xl text-grafite sm:text-3xl">
+        <Logo variante="horizontal" altura={32} />
+        <h1 className="mt-6 font-display text-titulo-sm text-grafite sm:text-titulo-md">
           Falta conectar o painel ao banco
         </h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-texto-suave">

@@ -8,6 +8,8 @@ import "server-only";
  * e uma mensagem de erro melhor do que um erro de permissao do Postgres.
  */
 
+import { redirect } from "next/navigation";
+
 import { createClient } from "./server";
 
 export type Papel = "owner" | "admin" | "staff";
@@ -64,8 +66,15 @@ export async function getUsuarioAtual(): Promise<UsuarioAutenticado | null> {
 
 /**
  * Exige que exista sessao e que o papel esteja entre os permitidos.
- * Lanca ErroDeAutorizacao quando nao esta - trate isso na Server Action
- * devolvendo uma mensagem amigavel, nunca deixe vazar para o usuario final.
+ *
+ * SEM SESSAO: redireciona para o login. Sessao que expirou e fluxo normal de
+ * uso, nao falha do sistema - mostrar tela de erro para isso so confunde.
+ * O redirect funciona tanto na renderizacao da pagina quanto dentro de uma
+ * Server Action, e o error.tsx nao o intercepta (o Next trata NEXT_REDIRECT
+ * antes de chegar na fronteira de erro).
+ *
+ * PAPEL INSUFICIENTE: lanca ErroDeAutorizacao. Ai sim e um erro de verdade,
+ * e a tela de erro do painel explica.
  */
 export async function requireRole(
   papeisPermitidos: Papel[],
@@ -73,7 +82,7 @@ export async function requireRole(
   const usuario = await getUsuarioAtual();
 
   if (!usuario) {
-    throw new ErroDeAutorizacao("Sua sessao expirou. Entre novamente.");
+    redirect("/admin/login");
   }
 
   if (!papeisPermitidos.includes(usuario.papel)) {

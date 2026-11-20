@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { formatarDataBanco, formatarDataCurta } from "@/lib/dates";
+import { EstadoVazio } from "@/components/admin/EstadoVazio";
+import { ConfirmarAcao } from "@/components/admin/ConfirmarAcao";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { classeInput } from "@/components/admin/FormField";
 import { connection } from "next/server";
@@ -13,8 +16,8 @@ import {
   salvarContatoCliente,
 } from "../actions";
 
-const botao = "inline-flex min-h-10 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-white hover:bg-musgo-escuro";
-const secundario = "inline-flex min-h-9 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
+const botao = "inline-flex min-h-11 items-center justify-center rounded-marca bg-musgo px-4 text-sm font-medium text-off-white hover:bg-musgo-escuro";
+const secundario = "inline-flex min-h-11 items-center justify-center rounded-marca border border-borda px-3 text-xs font-medium text-grafite hover:bg-areia-claro";
 
 const etapasNegocio: Record<string, string> = {
   novo: "Nova",
@@ -152,8 +155,26 @@ export default async function ClientesPage() {
                 <input name="endereco" maxLength={500} defaultValue={cliente.endereco ?? ""} placeholder="Endereço" aria-label="Endereço" className={classeInput()} />
                 <textarea name="observacoes" maxLength={4000} defaultValue={cliente.observacoes ?? ""} placeholder="Observações" aria-label="Observações" className={`${classeInput()} sm:col-span-2`} />
                 <button className={secundario}>Salvar alterações</button>
-                <button formAction={excluirCliente} name="id" value={cliente.id} className={secundario}>Excluir cliente</button>
               </form>
+              {/* A exclusao fica FORA do formulario de edicao e com tratamento
+                  de perigo proprio: apagar um cliente leva junto contatos,
+                  projetos, tarefas e historico (cascata no banco). */}
+              <div className="mt-3 flex justify-end">
+                <ConfirmarAcao
+                  acao={excluirCliente}
+                  campos={{ id: cliente.id }}
+                  rotulo="Excluir cliente"
+                  titulo="Excluir este cliente?"
+                  descricao={`O cadastro de ${cliente.empresa} sai do painel. Oportunidades e lançamentos financeiros continuam existindo, mas perdem o vínculo com o cliente.`}
+                  consequencias={[
+                    `${contatos.length} pessoa(s) de contato`,
+                    `${projetos.length} projeto(s) do cliente`,
+                    `${historico.length} registro(s) de histórico`,
+                    "Tarefas vinculadas a este cliente",
+                  ]}
+                  confirmarTexto={cliente.empresa}
+                />
+              </div>
               <section className="mt-5 grid gap-4 border-t border-borda pt-4 sm:grid-cols-2">
                 <div>
                   <div className="flex items-center justify-between gap-2">
@@ -167,7 +188,7 @@ export default async function ClientesPage() {
                           <span className="font-medium text-grafite">{projeto.nome}</span>
                           <span className="mt-0.5 block text-xs text-texto-suave">
                             {statusProjeto[projeto.status] ?? projeto.status} · {projeto.etapa} · {formatBRL(Number(projeto.valor_cents))}
-                            {projeto.prazo ? ` · prazo ${new Date(`${projeto.prazo}T12:00:00`).toLocaleDateString("pt-BR")}` : ""}
+                            {projeto.prazo ? ` · prazo ${formatarDataBanco(projeto.prazo)}` : ""}
                           </span>
                         </li>
                       ))}
@@ -204,7 +225,7 @@ export default async function ClientesPage() {
                   <select name="principal" className={classeInput()}><option value="false">Contato adicional</option><option value="true">Contato principal</option></select>
                   <button className={secundario}>Adicionar contato</button>
                 </form>
-                {contatos.length ? <ul className="mt-3 space-y-2">{contatos.map((contato) => <li key={contato.id} className="flex items-center justify-between gap-2 rounded-marca bg-fundo-alt px-3 py-2 text-sm"><span>{contato.nome}{contato.principal ? " · principal" : ""}{contato.cargo ? ` · ${contato.cargo}` : ""}{contato.email ? ` · ${contato.email}` : ""}</span><form action={excluirContatoCliente}><input type="hidden" name="id" value={contato.id} /><button className={secundario}>Remover</button></form></li>)}</ul> : null}
+                {contatos.length ? <ul className="mt-3 space-y-2">{contatos.map((contato) => <li key={contato.id} className="flex items-center justify-between gap-2 rounded-marca bg-fundo-alt px-3 py-2 text-sm"><span>{contato.nome}{contato.principal ? " · principal" : ""}{contato.cargo ? ` · ${contato.cargo}` : ""}{contato.email ? ` · ${contato.email}` : ""}</span><ConfirmarAcao acao={excluirContatoCliente} campos={{ id: contato.id }} rotulo="Remover" aparencia="texto" titulo="Remover esta pessoa de contato?" descricao={`${contato.nome} deixa de aparecer no cadastro de ${cliente.empresa}.`} confirmarRotulo="Sim, remover" /></li>)}</ul> : null}
               </details>
               <div className="mt-5 border-t border-borda pt-4">
                 <h3 className="text-sm font-semibold text-grafite">Histórico de contato</h3>
@@ -215,14 +236,21 @@ export default async function ClientesPage() {
                   <button className={secundario}>Adicionar</button>
                 </form>
                 {historico.length ? <ul className="mt-3 space-y-2">{historico.slice(0, 5).map((item) => (
-                  <li key={item.id} className="rounded-marca bg-fundo-alt px-3 py-2 text-sm"><span className="font-medium text-musgo">{item.tipo}</span> · {item.descricao}<time className="ml-2 text-xs text-texto-suave">{new Date(item.ocorreu_em).toLocaleDateString("pt-BR")}</time></li>
+                  <li key={item.id} className="rounded-marca bg-fundo-alt px-3 py-2 text-sm"><span className="font-medium text-musgo">{item.tipo}</span> · {item.descricao}<time className="ml-2 text-xs text-texto-suave">{formatarDataCurta(item.ocorreu_em)}</time></li>
                 ))}</ul> : <p className="mt-3 text-xs text-texto-suave">Nenhuma interação registrada.</p>}
               </div>
             </article>
           );
         })}
       </div>
-      {!clientes.length ? <p className="rounded-marca border border-dashed border-borda p-6 text-sm text-texto-suave">Ainda não há clientes. Você também pode converter leads pelo CRM.</p> : null}
+      {!clientes.length ? (
+        <EstadoVazio
+          icone="Users"
+          titulo="Nenhum cliente cadastrado"
+          descricao="Use “Adicionar cliente” para cadastrar direto, ou abra o funil e converta um lead que já virou negócio — a conversão traz os dados de contato junto."
+          acao={<Link href="/admin/crm" className={secundario}>Abrir funil de vendas</Link>}
+        />
+      ) : null}
     </>
   );
 }

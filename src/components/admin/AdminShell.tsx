@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 import { Icone } from "@/components/ui/Icone";
+import { Logo } from "@/components/brand/Logo";
 import { MENU_ADMIN, type ItemMenuAdmin } from "@/components/admin/nav";
 import { sairAdmin } from "@/app/admin/actions";
 import type { UsuarioAutenticado } from "@/lib/supabase/auth";
@@ -99,10 +100,8 @@ export function AdminShell({
   return (
     <div className="min-h-screen bg-fundo-alt/50 lg:flex">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-borda bg-fundo px-4 py-5 lg:flex">
-        <Link href="/admin" className="px-3">
-          <span className="block font-display text-xl font-semibold text-musgo">
-            ARKA
-          </span>
+        <Link href="/admin" className="flex flex-col gap-1 px-3" aria-label="ARKA Technologies — painel administrativo">
+          <Logo variante="horizontal" altura={30} />
           <span className="text-[11px] uppercase tracking-[0.16em] text-texto-suave">
             Painel administrativo
           </span>
@@ -144,13 +143,13 @@ export function AdminShell({
               aria-controls="admin-menu-mobile"
               aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
               onClick={() => setMenuAberto((aberto) => !aberto)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-marca text-grafite transition-colors hover:bg-areia-claro active:scale-95 lg:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-marca text-grafite transition-colors hover:bg-areia-claro active:scale-95 lg:hidden"
             >
               <Icone nome={menuAberto ? "X" : "Menu"} tamanho={20} />
             </button>
-            <span className="font-display text-lg font-semibold text-musgo lg:hidden">
-              ARKA
-            </span>
+            <Link href="/admin" aria-label="ARKA Technologies" className="lg:hidden">
+              <Logo variante="horizontal" altura={26} />
+            </Link>
             <span className="hidden text-sm text-texto-suave lg:block">
               Olá, {usuario.nome || usuario.email}
             </span>
@@ -159,7 +158,7 @@ export function AdminShell({
             <Link
               href="/"
               target="_blank"
-              className="inline-flex min-h-10 items-center gap-2 rounded-marca border border-borda px-3 text-sm font-medium text-grafite transition-colors hover:bg-areia-claro"
+              className="inline-flex min-h-11 items-center gap-2 rounded-marca border border-borda px-3 text-sm font-medium text-grafite transition-colors hover:bg-areia-claro"
             >
               <Icone nome="ExternalLink" tamanho={16} />
               <span className="hidden sm:inline">Ver site</span>
@@ -167,7 +166,7 @@ export function AdminShell({
             <form action={sairAdmin}>
               <button
                 type="submit"
-                className="inline-flex min-h-10 items-center gap-2 rounded-marca px-3 text-sm font-medium text-texto-suave transition-colors hover:bg-areia-claro hover:text-grafite"
+                className="inline-flex min-h-11 items-center gap-2 rounded-marca px-3 text-sm font-medium text-texto-suave transition-colors hover:bg-areia-claro hover:text-grafite"
               >
                 <Icone nome="LogOut" tamanho={16} />
                 <span className="hidden sm:inline">Sair</span>

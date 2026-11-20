@@ -6,17 +6,19 @@
  */
 
 import { brand } from "@/content/brand";
-import { getSection, getSiteSettings } from "@/lib/data";
+import { getSection, getSiteSettings, getTracking } from "@/lib/data";
 import { BotaoLink } from "@/components/ui/Button";
 import { Icone } from "@/components/ui/Icone";
+import { LinkContato } from "@/components/contato/LinkContato";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { linkWhatsapp } from "@/lib/utils";
 
 export async function CTA() {
-  const [secao, settings] = await Promise.all([
+  const [secao, settings, tracking] = await Promise.all([
     getSection("cta"),
     getSiteSettings(),
+    getTracking(),
   ]);
 
   if (!secao?.visivel) return null;
@@ -72,25 +74,30 @@ export async function CTA() {
         ) : null}
 
         <RevealItem className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
-          <BotaoLink
+          <LinkContato
             href={linkWhatsapp(
               settings.contato.whatsappDigitos,
               brand.whatsapp.mensagemOrcamento,
             )}
-            variante="claro"
-            tamanho="lg"
-            target="_blank"
-            rel="noopener noreferrer"
+            evento="contato_whatsapp"
+            origem="faixa_cta"
+            conversao={tracking.googleAdsConversao}
+            className="inline-flex min-h-13 items-center justify-center gap-2 rounded-marca bg-off-white px-8 text-base font-medium text-musgo shadow-suave transition-[background-color,box-shadow,transform] duration-[180ms] hover:-translate-y-px hover:bg-areia-claro hover:shadow-media motion-reduce:transform-none"
           >
             <Icone nome="MessageCircle" tamanho={18} />
             {conteudo?.botao ?? brand.microcopy.botoes.contatoPrimario}
-          </BotaoLink>
+          </LinkContato>
 
           <BotaoLink
             href="#servicos"
             tamanho="lg"
-            // Variante secundaria em fundo escuro: borda e texto claros.
-            className="border border-off-white/30 bg-transparent text-off-white shadow-none hover:border-off-white/70 hover:bg-off-white/10 hover:shadow-none"
+            /*
+              Variante secundaria em fundo escuro. A borda era off-white/30,
+              que da 1,99:1 contra o musgo - abaixo dos 3:1 que a WCAG 1.4.11
+              exige para o contorno de um componente. Em off-white/55 o botao
+              fica visivel sem roubar a atencao do primario.
+            */
+            className="border border-off-white/55 bg-transparent text-off-white shadow-none hover:border-off-white hover:bg-off-white/10 hover:shadow-none"
           >
             {brand.microcopy.botoes.verServicos}
           </BotaoLink>

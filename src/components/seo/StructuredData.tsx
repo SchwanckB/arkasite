@@ -1,10 +1,16 @@
-import type { SiteSettings } from "@/lib/data/types";
+import type { Faq, SiteSettings } from "@/lib/data/types";
 
 type StructuredDataProps = {
   settings: SiteSettings;
+  /**
+   * Perguntas frequentes publicadas. Viram um bloco FAQPage, que e o que
+   * permite ao Google montar o resultado expandido na busca - as nove
+   * perguntas ja existiam na pagina e nao eram declaradas em lugar nenhum.
+   */
+  faq?: Faq[];
 };
 
-export function StructuredData({ settings }: StructuredDataProps) {
+export function StructuredData({ settings, faq }: StructuredDataProps) {
   const siteUrl = new URL("/", settings.url).toString();
   const logoUrl = new URL("/brand/logo-horizontal-transparente.png", settings.url).toString();
   const sameAs = Object.values(settings.redes).filter((url): url is string => Boolean(url));
@@ -43,6 +49,21 @@ export function StructuredData({ settings }: StructuredDataProps) {
         inLanguage: "pt-BR",
         publisher: { "@id": organizationId },
       },
+      // So declara o FAQPage quando ha pergunta publicada: um bloco vazio
+      // conta como marcacao invalida para o Google.
+      ...(faq?.length
+        ? [{
+          "@type": "FAQPage",
+          "@id": `${siteUrl}#faq`,
+          inLanguage: "pt-BR",
+          isPartOf: { "@id": `${siteUrl}#website` },
+          mainEntity: faq.map((item) => ({
+            "@type": "Question",
+            name: item.pergunta,
+            acceptedAnswer: { "@type": "Answer", text: item.resposta },
+          })),
+        }]
+        : []),
     ],
   };
   const jsonLd = JSON.stringify(structuredData).replace(/</g, "\\u003c");

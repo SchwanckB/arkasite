@@ -26,7 +26,10 @@ import {
   LinhaConexaoVertical,
 } from "./processo/LinhaConexao";
 
-export async function Processo() {
+/** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+type FundoSecao = "claro" | "alternado";
+
+export async function Processo({ fundo = "alternado" }: { fundo?: FundoSecao } = {}) {
   const [secao, etapas] = await Promise.all([
     getSection("processo"),
     getProcessSteps(),
@@ -35,7 +38,7 @@ export async function Processo() {
   if (!secao?.visivel) return null;
 
   return (
-    <Section id="processo" fundo="alternado" largura="largo">
+    <Section fundo={fundo} id="processo" largura="largo">
       <SectionHeading
         sobretitulo={secao.subtitulo}
         titulo={secao.titulo}

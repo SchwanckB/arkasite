@@ -25,7 +25,7 @@ export default function NaoEncontrada() {
     >
       <ArkaSymbol variante="simples" tamanho={56} alt="" />
 
-      <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-salvia">
+      <p className="mt-8 text-rotulo font-semibold uppercase tracking-[0.2em] text-musgo">
         Erro 404
       </p>
 

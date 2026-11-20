@@ -187,8 +187,19 @@ export function HeaderBar({ itens, nomeSite }: HeaderBarProps) {
           </nav>
 
           <div className="flex items-center gap-2">
-            <BotaoLink href="#contato" tamanho="sm" className="hidden sm:inline-flex">
-              {brand.microcopy.botoes.contatoPrimario}
+            {/*
+              O CTA NUNCA some. Antes era `hidden sm:inline-flex`, entao abaixo
+              de 640px o unico caminho ate o contato era abrir o menu - um
+              toque a mais justamente onde a maior parte do trafego entra.
+              No celular ele fica compacto (so o icone + "Falar"); a partir de
+              sm volta o rotulo inteiro.
+            */}
+            <BotaoLink href="#contato" tamanho="sm" aria-label={brand.microcopy.botoes.contatoPrimario}>
+              <Icone nome="MessageCircle" tamanho={16} className="sm:hidden" />
+              <span className="sm:hidden">Falar</span>
+              <span className="hidden sm:inline">
+                {brand.microcopy.botoes.contatoPrimario}
+              </span>
             </BotaoLink>
 
             <button
@@ -202,7 +213,7 @@ export function HeaderBar({ itens, nomeSite }: HeaderBarProps) {
                   : brand.microcopy.botoes.abrirMenu
               }
               onClick={() => setMenuAberto((v) => !v)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-marca text-grafite transition-colors duration-[180ms] hover:bg-musgo/8 md:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-marca text-grafite transition-colors duration-[180ms] hover:bg-musgo/8 md:hidden"
             >
               <Icone nome={menuAberto ? "X" : "Menu"} tamanho={22} />
             </button>
@@ -244,7 +255,7 @@ export function HeaderBar({ itens, nomeSite }: HeaderBarProps) {
                 type="button"
                 aria-label={brand.microcopy.botoes.fecharMenu}
                 onClick={fechar}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-marca text-grafite transition-colors duration-[180ms] hover:bg-musgo/8"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-marca text-grafite transition-colors duration-[180ms] hover:bg-musgo/8"
               >
                 <Icone nome="X" tamanho={22} />
               </button>

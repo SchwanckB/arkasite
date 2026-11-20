@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Logo } from "@/components/brand/Logo";
+
 import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = {
@@ -21,10 +23,8 @@ export default async function LoginPage({
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md items-center px-5 py-12">
       <section className="w-full rounded-marca-lg border border-borda bg-superficie p-6 shadow-suave sm:p-9">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-salvia">
-          ARKA Technologies
-        </p>
-        <h1 className="mt-3 font-display text-2xl text-grafite">
+        <Logo variante="horizontal" altura={32} prioridade />
+        <h1 className="mt-6 font-display text-titulo-sm text-grafite">
           Entrar no painel
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-texto-suave">

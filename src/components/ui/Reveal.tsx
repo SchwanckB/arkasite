@@ -10,6 +10,14 @@
  * Respeita prefers-reduced-motion automaticamente: com movimento reduzido o
  * conteudo aparece sem deslocamento, nunca fica invisivel.
  *
+ * ACIMA DA DOBRA, USE `imediato`.
+ * Sem ele, o elemento e enviado pelo servidor com opacity:0 e so aparece
+ * depois que o JS carrega, hidrata e o IntersectionObserver dispara - o que
+ * jogava o LCP do site para depois da hidratacao e deixava a pagina em branco
+ * para quem tem JS lento ou bloqueado. Com `imediato`, o HTML ja sai visivel
+ * e a animacao acontece a partir dali, sem nunca esconder nada.
+ * Regra pratica: tudo que cabe na primeira tela nasce com `imediato`.
+ *
  * IMPORTANTE: sao DOIS exports nomeados, de proposito. Nao transforme em
  * componente composto (Reveal.Item): propriedades estaticas nao atravessam a
  * fronteira server/client do React, e as secoes do site sao Server Components.
@@ -80,6 +88,12 @@ type RevealProps = {
   comoLista?: boolean;
   /** Intervalo entre os filhos quando comoLista esta ativo. */
   intervalo?: number;
+  /**
+   * Para conteudo ACIMA DA DOBRA. O elemento sai do servidor ja visivel e
+   * anima a partir do estado visivel, em vez de comecar em opacity:0.
+   * Protege o LCP e garante a pagina legivel sem JavaScript.
+   */
+  imediato?: boolean;
 };
 
 export function Reveal({
@@ -90,6 +104,7 @@ export function Reveal({
   className,
   comoLista = false,
   intervalo = tokensAtraso.curto,
+  imediato = false,
 }: RevealProps) {
   const Componente = COMPONENTES[as];
   const variantesItem = useVariante(variante);
@@ -98,10 +113,17 @@ export function Reveal({
   // A variante "mascara" precisa de overflow hidden no container.
   const precisaRecorte = variante === "mascara";
 
+  /*
+    Com `imediato`, o estado inicial e o proprio estado visivel: o servidor
+    manda o elemento pintado e a animacao roda de "visivel" para "visivel",
+    o que na pratica significa entrada instantanea e nenhum risco de a pagina
+    ficar em branco. Sem ele, o comportamento e o de sempre: entra ao aparecer
+    na tela.
+  */
   return (
     <Componente
       className={cn(precisaRecorte && "overflow-hidden", className)}
-      initial="oculto"
+      initial={imediato ? "visivel" : "oculto"}
       whileInView="visivel"
       viewport={emVista}
       variants={comoLista ? variantesLista : variantesItem}
@@ -117,6 +139,11 @@ type RevealItemProps = {
   variante?: NomeVariante;
   as?: TagAnimavel;
   className?: string;
+  /**
+   * Mesma ideia do `imediato` do <Reveal />: para conteudo acima da dobra.
+   * O item nasce visivel em vez de esperar o encadeamento do pai.
+   */
+  imediato?: boolean;
 };
 
 /** Filho de um <Reveal comoLista>. Herda o encadeamento do pai. */
@@ -125,12 +152,17 @@ export function RevealItem({
   variante = "fadeUp",
   as = "div",
   className,
+  imediato = false,
 }: RevealItemProps) {
   const Componente = COMPONENTES[as];
   const variantes = useVariante(variante);
 
   return (
-    <Componente className={className} variants={variantes}>
+    <Componente
+      className={className}
+      variants={variantes}
+      initial={imediato ? "visivel" : undefined}
+    >
       {children}
     </Componente>
   );

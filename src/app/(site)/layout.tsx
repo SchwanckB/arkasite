@@ -4,8 +4,10 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { StructuredData } from "@/components/seo/StructuredData";
+import { WhatsappFlutuante } from "@/components/contato/WhatsappFlutuante";
 import { Rastreamento } from "@/components/tracking/Rastreamento";
-import { getAppearanceTheme, getSiteSettings } from "@/lib/data";
+import { getAppearanceTheme, getFaq, getSiteSettings, getTracking } from "@/lib/data";
+import { linkWhatsapp } from "@/lib/utils";
 import type { CSSProperties } from "react";
 
 type ThemeVariables = CSSProperties & {
@@ -25,7 +27,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SiteLayout({ children }: { children: ReactNode }) {
-  const [tema, settings] = await Promise.all([getAppearanceTheme(), getSiteSettings()]);
+  const [tema, settings, tracking, faq] = await Promise.all([
+    getAppearanceTheme(),
+    getSiteSettings(),
+    getTracking(),
+    getFaq(),
+  ]);
   const variaveis: ThemeVariables = tema === "grafite"
     ? {
       "--color-musgo": "#252626",
@@ -43,10 +50,18 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
     <div className="flex min-h-full flex-col" style={variaveis}>
       <Header />
       <main id="conteudo" className="flex-1">
-        <StructuredData settings={settings} />
+        <StructuredData settings={settings} faq={faq} />
         {children}
       </main>
       <Footer />
+      {/* Atalho permanente para a conversa. Aparece depois do hero. */}
+      <WhatsappFlutuante
+        href={linkWhatsapp(
+          settings.contato.whatsappDigitos,
+          settings.mensagemWhatsapp,
+        )}
+        conversao={tracking.googleAdsConversao}
+      />
       <Rastreamento />
     </div>
   );

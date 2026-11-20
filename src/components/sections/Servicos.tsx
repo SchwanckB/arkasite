@@ -7,26 +7,31 @@
  */
 
 import { brand } from "@/content/brand";
-import { getSection, getServices, getSiteSettings } from "@/lib/data";
+import { getSection, getServices, getSiteSettings, getTracking } from "@/lib/data";
 import { Card } from "@/components/ui/Card";
 import { Icone } from "@/components/ui/Icone";
+import { LinkContato } from "@/components/contato/LinkContato";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { linkWhatsapp } from "@/lib/utils";
 
-export async function Servicos() {
-  const [secao, servicos, settings] = await Promise.all([
+/** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+type FundoSecao = "claro" | "alternado";
+
+export async function Servicos({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
+  const [secao, servicos, settings, tracking] = await Promise.all([
     getSection("servicos"),
     getServices(),
     getSiteSettings(),
+    getTracking(),
   ]);
 
   if (!secao?.visivel) return null;
 
   if (servicos.length === 0) {
     return (
-      <Section id="servicos" largura="largo">
+      <Section fundo={fundo} id="servicos" largura="largo">
         <SectionHeading
           sobretitulo={secao.subtitulo}
           titulo={secao.titulo}
@@ -40,7 +45,7 @@ export async function Servicos() {
   }
 
   return (
-    <Section id="servicos" largura="largo">
+    <Section fundo={fundo} id="servicos" largura="largo">
       <SectionHeading
         sobretitulo={secao.subtitulo}
         titulo={secao.titulo}
@@ -85,14 +90,17 @@ export async function Servicos() {
                 ))}
               </ul>
 
-              <a
+              <LinkContato
                 href={linkWhatsapp(
                   settings.contato.whatsappDigitos,
                   brand.whatsapp.mensagemServico(servico.nome.toLowerCase()),
                 )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-musgo transition-colors duration-[180ms] hover:text-musgo-escuro"
+                evento="contato_whatsapp"
+                origem="cartao_servico"
+                detalhes={{ servico: servico.slug }}
+                conversao={tracking.googleAdsConversao}
+                aria-label={`Falar sobre ${servico.nome} no WhatsApp`}
+                className="mt-auto inline-flex min-h-11 items-center gap-1.5 pt-6 text-sm font-medium text-musgo transition-colors duration-[180ms] hover:text-musgo-escuro"
               >
                 Falar sobre este serviço
                 <Icone
@@ -100,8 +108,7 @@ export async function Servicos() {
                   tamanho={16}
                   className="transition-transform duration-[180ms] group-hover:translate-x-0.5 motion-reduce:transform-none"
                 />
-                <span className="sr-only"> no WhatsApp</span>
-              </a>
+              </LinkContato>
             </Card>
           </RevealItem>
         ))}
