@@ -12,6 +12,32 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    /*
+      Pastas de ferramentas de agente (Windsurf, Cursor, Roo, Warp, Trae,
+      Kiro e companhia). Cada uma guarda a propria copia dos mesmos scripts
+      .cjs, e juntas somavam centenas de erros que nao sao do projeto -
+      o `npm run lint` deixava de servir para achar problema de verdade.
+      O codigo do site continua sendo verificado normalmente.
+    */
+    ".agents/**",
+    ".augment/**",
+    ".claude/**",
+    ".codebuddy/**",
+    ".codewhale/**",
+    ".continue/**",
+    ".cursor/**",
+    ".factory/**",
+    ".gemini/**",
+    ".github/**",
+    ".kilocode/**",
+    ".kiro/**",
+    ".opencode/**",
+    ".qoder/**",
+    ".roo/**",
+    ".trae/**",
+    ".warp/**",
+    ".windsurf/**",
+    "design-system/**",
   ]),
 ]);
 

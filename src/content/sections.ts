@@ -3,6 +3,16 @@
  *
  * TEXTOS pertencem a Parte C. ESTRUTURA (ids, ordem, chaves de conteudo)
  * pertence a Parte 0 - as secoes dependem destas chaves.
+ *
+ * SOBRE O `subtitulo` (o sobretitulo em maiusculas do site):
+ * use SO quando ele informa algo que o titulo nao diz. "Serviços" acima de
+ * "O que fazemos" era o mesmo rotulo duas vezes, e foi retirado daqui - de
+ * "servicos", "processo", "portfolio", "faq", "contato" e do hero. Os que
+ * ficaram ("Quem constrói o seu projeto", "O que você encontra aqui")
+ * acrescentam informacao de verdade.
+ *
+ * O campo continua existindo e editavel pelo painel: quem decide e o dono,
+ * nao o componente. (Decisao de 20/11/2026.)
  */
 
 import type { Section } from "@/lib/data/types";
@@ -12,7 +22,6 @@ export const sections: Section[] = [
     id: "hero",
     rotulo: "Início",
     titulo: "Soluções digitais para impulsionar seu comércio",
-    subtitulo: "Tecnologia que conecta sua marca ao futuro.",
     descricao:
       "Sites modernos, rápidos e feitos sob medida para o seu negócio aparecer e vender mais.",
     visivel: true,
@@ -44,7 +53,6 @@ export const sections: Section[] = [
     id: "servicos",
     rotulo: "Serviços",
     titulo: "O que fazemos",
-    subtitulo: "Serviços",
     descricao:
       "Do primeiro site à loja completa, com acompanhamento em cada etapa.",
     visivel: true,
@@ -54,7 +62,6 @@ export const sections: Section[] = [
     id: "processo",
     rotulo: "Processo",
     titulo: "Como trabalhamos",
-    subtitulo: "Processo",
     descricao: "Quatro etapas claras, do primeiro contato à entrega.",
     visivel: true,
     ordem: 5,
@@ -63,7 +70,6 @@ export const sections: Section[] = [
     id: "portfolio",
     rotulo: "Portfólio",
     titulo: "Projetos",
-    subtitulo: "Portfólio",
     descricao:
       "Alguns projetos e conceitos que mostram o nosso jeito de trabalhar.",
     visivel: true,
@@ -73,7 +79,6 @@ export const sections: Section[] = [
     id: "faq",
     rotulo: "Dúvidas",
     titulo: "Perguntas frequentes",
-    subtitulo: "Dúvidas",
     descricao:
       "As perguntas que mais aparecem na primeira conversa, respondidas sem rodeio.",
     visivel: true,
@@ -93,7 +98,6 @@ export const sections: Section[] = [
     id: "contato",
     rotulo: "Contato",
     titulo: "Vamos conversar",
-    subtitulo: "Contato",
     descricao:
       "Conte um pouco sobre o seu projeto e retornamos em até um dia útil.",
     visivel: true,

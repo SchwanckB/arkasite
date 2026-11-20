@@ -1,19 +1,28 @@
 /**
- * ESQUELETO - propriedade da PARTE 2.
- * Mantenha o export <Diferenciais /> e o consumo via @/lib/data.
+ * Diferenciais - os quatro pilares da faixa da identidade.
+ *
+ * Eram quatro cartoes identicos com borda, raio e sombra no hover. Cartao e
+ * para conteudo que se abre ou se clica; estes sao afirmacoes curtas, nao
+ * destinos. Sem a moldura eles respiram e o olho corre pelos quatro de uma
+ * vez, que e exatamente como a faixa do brand board apresenta.
+ *
+ * A regra superior em musgo substitui a borda do cartao: divide sem cercar.
+ * Nenhuma numeracao - os quatro sao simultaneos, nao uma sequencia. (A
+ * sequencia de verdade e o Processo, e la os numeros aparecem.)
  */
 
 import { getDifferentials, getSection } from "@/lib/data";
-import { Card } from "@/components/ui/Card";
 import { Icone } from "@/components/ui/Icone";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-/** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
+/** Fundo da secao. Hoje o site inteiro e off-white. */
 type FundoSecao = "claro" | "alternado";
 
-export async function Diferenciais({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
+export async function Diferenciais({
+  fundo = "claro",
+}: { fundo?: FundoSecao } = {}) {
   const [secao, itens] = await Promise.all([
     getSection("diferenciais"),
     getDifferentials(),
@@ -27,38 +36,29 @@ export async function Diferenciais({ fundo = "claro" }: { fundo?: FundoSecao } =
         sobretitulo={secao.subtitulo}
         titulo={secao.titulo}
         descricao={secao.descricao}
-        alinhamento="centro"
       />
 
-      <Reveal
-        comoLista
-        className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
-      >
+      <Reveal comoLista className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {itens.map((item) => (
           <RevealItem key={item.id}>
-            <Card interativo className="flex h-full flex-col">
-              <Icone nome={item.icone} tamanho={28} className="text-musgo" />
-              <h3 className="mt-5 font-display text-lg text-grafite">
+            <div className="flex h-full flex-col border-t-2 border-musgo pt-5">
+              <Icone nome={item.icone} tamanho={24} className="text-musgo" />
+
+              <h3 className="mt-4 font-display text-lg font-semibold tracking-[-0.01em] text-grafite">
                 {item.titulo}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-texto-suave">
+
+              <p className="mt-2 text-pretty text-sm leading-relaxed text-texto-suave">
                 {item.descricao}
               </p>
 
-              {/* Prova concreta do diferencial, escrita pela Parte C. */}
+              {/* A prova concreta do pilar. Recuada, para ler como nota. */}
               {item.apoio ? (
-                <div className="mt-auto flex items-start gap-2 border-t border-borda pt-4">
-                  <Icone
-                    nome="Check"
-                    tamanho={14}
-                    className="mt-0.5 shrink-0 text-salvia"
-                  />
-                  <p className="text-xs leading-relaxed text-texto-suave">
-                    {item.apoio}
-                  </p>
-                </div>
+                <p className="mt-auto border-l border-areia pl-3 pt-4 text-xs leading-relaxed text-texto-suave">
+                  {item.apoio}
+                </p>
               ) : null}
-            </Card>
+            </div>
           </RevealItem>
         ))}
       </Reveal>

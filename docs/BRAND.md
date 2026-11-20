@@ -256,7 +256,7 @@ duração própria.**
 | `easing.suave` | `cubic-bezier(0.4, 0, 0.2, 1)` | Hover, foco, cor |
 | `duracao.rapida` | 180 ms | Micro-feedback |
 | `duracao.media` | 380 ms | Modais, menus, acordeões |
-| `duracao.secao` | 700 ms | Entrada de seção, reveals |
+| `duracao.secao` | 400 ms | Entrada de seção, reveals |
 | `duracao.flutuante` | 4,8 s | Flutuação decorativa do símbolo de destaque |
 
 Variantes prontas: `fade`, `fadeUp`, `fadeDown`, `fadeLeft`, `fadeRight`,

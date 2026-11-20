@@ -2,7 +2,15 @@ import { Reveal, RevealItem } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 type SectionHeadingProps = {
-  /** Rotulo curto acima do titulo (ex.: "Servicos"). */
+  /**
+   * Rotulo curto acima do titulo.
+   *
+   * SO USE QUANDO ELE INFORMA ALGO QUE O TITULO NAO DIZ - uma contagem, um
+   * prazo, uma condicao. "SERVIÇOS" acima de "O que fazemos" e o mesmo
+   * rotulo duas vezes, e foi retirado das secoes onde era isso (decisao do
+   * dono, 20/11/2026). O padrao de marca continua valendo onde carrega
+   * informacao.
+   */
   sobretitulo?: string;
   titulo: string;
   descricao?: string;
@@ -30,7 +38,9 @@ export function SectionHeading({
     <Reveal
       comoLista
       className={cn(
-        "flex max-w-2xl flex-col gap-4",
+        // ~60-70 caracteres por linha. Era max-w-2xl (42rem), que a 18px
+        // passava de 80 caracteres e cansava a leitura.
+        "flex max-w-[34rem] flex-col gap-4",
         centro && "mx-auto items-center text-center",
         className,
       )}
@@ -50,7 +60,7 @@ export function SectionHeading({
       <RevealItem
         as={Titulo}
         className={cn(
-          "text-balance font-display text-titulo-md leading-tight sm:text-titulo-lg lg:text-titulo-xl",
+          "text-balance font-display text-titulo-md font-semibold leading-[1.1] tracking-[-0.02em] sm:text-titulo-lg lg:text-titulo-xl",
           invertido ? "text-texto-invertido" : "text-grafite",
         )}
       >

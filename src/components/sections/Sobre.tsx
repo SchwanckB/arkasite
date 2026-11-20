@@ -29,6 +29,8 @@ export async function Sobre({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
 
   return (
     <Section fundo={fundo} id="sobre">
+      {/* O sobretitulo FICA: "Quem constroi o seu projeto" diz quem assina o
+          trabalho, coisa que "Sobre a ARKA" nao diz. */}
       <SectionHeading
         sobretitulo={secao.subtitulo}
         titulo={secao.titulo}
@@ -105,13 +107,15 @@ export async function Sobre({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
 
       {/* Indicadores de diferenciacao: frases, nao numeros. */}
       <Reveal comoLista className="mt-16 grid gap-6 sm:grid-cols-3">
-        {marca.indicadores.map((indicador, indice) => (
+        {marca.indicadores.map((indicador) => (
           <RevealItem key={indicador.titulo}>
             <div className="flex h-full flex-col gap-3 border-t-2 border-musgo pt-5">
-              <span className="text-3xl font-bold text-salvia">
-                {`0${indice + 1}`}
-              </span>
-              <h3 className="font-display text-lg text-grafite">
+              {/*
+                Sem 01/02/03: os tres indicadores sao simultaneos, nao uma
+                ordem. Numero de sequencia so onde ha sequencia, e a unica
+                da pagina e o Processo.
+              */}
+              <h3 className="font-display text-lg font-semibold tracking-[-0.01em] text-grafite">
                 {indicador.titulo}
               </h3>
               <p className="text-pretty text-sm leading-relaxed text-texto-suave">
@@ -122,28 +126,35 @@ export async function Sobre({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
         ))}
       </Reveal>
 
-      {/* Valores da marca. */}
+      {/*
+        Valores: lista de termo e definicao, nao cartoes.
+
+        Eram cinco cartoes com borda, raio e sombra para cinco frases curtas.
+        Cartao implica destino ou algo que abre; isto e um glossario. <dl> diz
+        a estrutura de verdade - termo e sua definicao - e o leitor de tela
+        anuncia o par junto, coisa que cinco <div> nao fazem.
+      */}
       <div className="mt-16">
-        <Reveal as="h3" className="text-balance font-display text-2xl text-grafite">
+        <Reveal
+          as="h3"
+          className="font-display text-titulo-sm font-semibold tracking-[-0.02em] text-grafite"
+        >
           Nossos valores
         </Reveal>
 
-        <Reveal
-          comoLista
-          className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5"
-        >
-          {marca.valores.map((valor) => (
-            <RevealItem key={valor.nome}>
-              <Card className="h-full">
-                <h4 className="font-display text-base text-grafite">
+        <Reveal comoLista as="div" className="mt-8">
+          <dl className="grid gap-x-12 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+            {marca.valores.map((valor) => (
+              <div key={valor.nome} className="border-t border-areia pt-4">
+                <dt className="font-display text-base font-semibold text-grafite">
                   {valor.nome}
-                </h4>
-                <p className="mt-2 text-pretty text-sm leading-relaxed text-texto-suave">
+                </dt>
+                <dd className="mt-1.5 text-pretty text-sm leading-relaxed text-texto-suave">
                   {valor.descricao}
-                </p>
-              </Card>
-            </RevealItem>
-          ))}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </Reveal>
       </div>
     </Section>

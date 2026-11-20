@@ -146,6 +146,49 @@ h4 {
   }
 }
 
+/*
+  ---- Momento de carga do hero ----
+
+  UM momento orquestrado na pagina inteira, e so este. As linhas de
+  construcao se abrem a partir do centro, depois a moldura com o site
+  aparece. Nada mais na pagina entra animado: entrada por secao em todo
+  bloco e o padrao que denuncia pagina gerada, e ainda atrasava a primeira
+  pintura.
+
+  O texto do hero NAO participa: ele ja vem pintado do servidor, para o LCP
+  nao depender de JavaScript. O que anima e so o apoio visual.
+*/
+@keyframes arka-regua-abrir {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes arka-moldura-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.arka-regua {
+  transform-origin: center;
+  animation: arka-regua-abrir 900ms var(--ease-marca) both;
+}
+
+.arka-moldura {
+  animation: arka-moldura-entrar 700ms var(--ease-marca) 320ms both;
+}
+
 @keyframes admin-menu-enter {
   from {
     opacity: 0;
@@ -256,7 +299,9 @@ h4 {
 
   .admin-page-enter,
   .admin-stagger > *,
-  .admin-skeleton {
+  .admin-skeleton,
+  .arka-regua,
+  .arka-moldura {
     animation: none;
   }
 }

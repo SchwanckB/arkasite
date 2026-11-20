@@ -21,7 +21,6 @@ import { useRef } from "react";
 import { DeviceFrame } from "@/components/mockups/DeviceFrame";
 import { MockSite } from "@/components/mockups/MockSite";
 import { Card } from "@/components/ui/Card";
-import { Icone } from "@/components/ui/Icone";
 import { brand } from "@/content/brand";
 import type { DispositivoProjeto, Project } from "@/lib/data/types";
 
@@ -71,23 +70,24 @@ export function ProjetoCard({ projeto, onAbrir }: ProjetoCardProps) {
       </div>
 
       <div className="mt-6 flex flex-1 flex-col">
-        <div className="flex items-center gap-2">
-          <span className="text-rotulo font-semibold uppercase tracking-[0.14em] text-musgo">
+        {/* A etiqueta de conceito FICA: ela avisa que nao e trabalho de
+            cliente publicado, coisa que nada mais na peca diz. A categoria
+            deixa de ser rotulo em maiusculas e vira o que e - informacao
+            ao lado do nome. */}
+        {projeto.isConcept ? (
+          <span className="inline-flex w-fit rounded-full bg-areia px-2.5 py-0.5 text-[11px] font-medium text-musgo">
+            {brand.microcopy.etiquetas.conceito}
+            <span className="sr-only">
+              : {brand.microcopy.etiquetas.conceitoExplicacao}
+            </span>
+          </span>
+        ) : null}
+
+        <h3 className="mt-3 font-display text-lg font-semibold tracking-[-0.01em] text-grafite">
+          {projeto.nome}
+          <span className="ml-2 font-sans text-sm font-normal text-texto-suave">
             {projeto.categoria}
           </span>
-          {projeto.isConcept ? (
-            <span className="rounded-full bg-areia px-2 py-0.5 text-[11px] font-medium text-musgo">
-              {brand.microcopy.etiquetas.conceito}
-              {/* Explicacao acessivel: nao depende so do visual da etiqueta. */}
-              <span className="sr-only">
-                : {brand.microcopy.etiquetas.conceitoExplicacao}
-              </span>
-            </span>
-          ) : null}
-        </div>
-
-        <h3 className="mt-2 font-display text-lg text-grafite">
-          {projeto.nome}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-texto-suave">
           {projeto.descricao}
@@ -99,14 +99,9 @@ export function ProjetoCard({ projeto, onAbrir }: ProjetoCardProps) {
           onClick={() => {
             if (botaoRef.current) onAbrir(projeto, botaoRef.current);
           }}
-          className="mt-auto inline-flex items-center gap-1.5 pt-6 text-sm font-medium text-musgo transition-colors duration-[180ms] hover:text-musgo-escuro"
+          className="mt-auto inline-flex min-h-11 items-center pt-6 text-sm font-medium text-musgo underline decoration-areia decoration-2 underline-offset-4 transition-colors duration-[180ms] group-hover:decoration-musgo"
         >
           {brand.microcopy.botoes.verProjeto}
-          <Icone
-            nome="ArrowRight"
-            tamanho={16}
-            className="transition-transform duration-[180ms] group-hover:translate-x-0.5 motion-reduce:transform-none"
-          />
           <span className="sr-only"> {projeto.nome}</span>
         </button>
       </div>

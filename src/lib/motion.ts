@@ -34,8 +34,14 @@ export const duracao = {
   rapida: 0.18,
   /** 380ms - modais, menus, acordeoes, troca de estado visivel. */
   media: 0.38,
-  /** 700ms - entrada de secao, reveals de scroll, hero. */
-  secao: 0.7,
+  /**
+   * 400ms - entrada de secao e reveals de scroll.
+   *
+   * Era 700ms. Revelacao de scroll longa demais vira espera: a pessoa chega
+   * na secao antes de o conteudo terminar de entrar. 300-400ms e a faixa
+   * para uma revelacao sutil.
+   */
+  secao: 0.4,
   /** 4.8s - flutuacao decorativa e discreta do simbolo em destaque. */
   flutuante: 4.8,
 } as const;
@@ -47,11 +53,17 @@ export const atraso = {
   longo: 0.2,
 } as const;
 
-/** Distancias de deslocamento, para manter o movimento coerente. */
+/**
+ * Distancias de deslocamento, para manter o movimento coerente.
+ *
+ * O padrao era 24px, que le como SLIDE: o olho acompanha o percurso em vez
+ * de perceber o conteudo aparecendo. Entre 8 e 16px o movimento le como
+ * fade, que e o que a marca pede ("movimento discreto e suave", BRAND.md).
+ */
 export const deslocamento = {
   sutil: 8,
-  padrao: 24,
-  amplo: 48,
+  padrao: 12,
+  amplo: 24,
 } as const;
 
 /* ------------------------------------------------------------------ */

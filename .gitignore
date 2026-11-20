@@ -42,3 +42,27 @@ next-env.d.ts
 
 # imagens de identidade originais ficam no repo, mas nada gerado a partir delas
 /scratch
+
+# Ferramentas de agente instaladas na maquina, nao no projeto.
+# Cada uma guarda a propria copia das mesmas skills (sao milhares de
+# arquivos e ~1,6 milhao de linhas somando todas). Sao locais de quem
+# desenvolve, nao codigo do site.
+/.agents/
+/.augment/
+/.claude/
+/.codebuddy/
+/.codewhale/
+/.continue/
+/.cursor/
+/.factory/
+/.gemini/
+/.github/
+/.kilocode/
+/.kiro/
+/.opencode/
+/.qoder/
+/.roo/
+/.trae/
+/.warp/
+/.windsurf/
+/design-system/

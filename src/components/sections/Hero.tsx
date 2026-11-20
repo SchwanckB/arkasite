@@ -1,29 +1,59 @@
 /**
- * Hero - PARTE 1 (Header + Hero).
+ * Hero.
  *
- * A peca mais importante do site: primeira coisa que o visitante ve. Textos
- * vem de getSection("hero"); o unico texto de interface e o rotulo de
- * fallback dos botoes, que vem de brand.microcopy (mesma convencao da CTA).
+ * Abre com o PRODUTO, nao com a marca. Ate aqui mostrava o simbolo da ARKA
+ * flutuando dentro de um circulo de areia - mas a logo ja esta no cabecalho,
+ * a 70px dali, e um simbolo nao diz o que a empresa entrega. Quem chega aqui
+ * e dono de comercio sem site: o que convence em dois segundos e ver um site
+ * pronto de um negocio parecido com o dele. Isso ja existia no repositorio e
+ * nao estava sendo usado fora do portfolio: <DeviceFrame> + <MockSite>
+ * desenham em CSS sete tipos de comercio reconheciveis.
  *
- * TUDO AQUI USA <Reveal imediato>. O hero esta acima da dobra, entao nao pode
- * depender de JavaScript para aparecer: antes, o <h1> saia do servidor com
- * opacity:0 e so pintava depois da hidratacao, o que jogava o LCP la para
- * frente e deixava a pagina em branco para quem tem conexao ruim.
+ * TODO O TEXTO USA <Reveal imediato>: o hero esta acima da dobra e nao pode
+ * depender de JavaScript para aparecer. O unico elemento animado da pagina
+ * inteira e a moldura a direita, por classe CSS - ver "Momento de carga do
+ * hero" em globals.css.
+ *
+ * NAO HA SOBRETITULO AQUI. A assinatura da marca ("Tecnologia que conecta
+ * sua marca ao futuro") vivia em maiusculas espacadas acima de um titulo que
+ * ja faz a mesma promessa - duas afirmacoes empilhadas, uma anulando a
+ * outra. Ela continua no lockup do rodape, que e onde assinatura mora.
  */
 
 import { brand } from "@/content/brand";
-import { getDifferentials, getProjects, getSection, getSiteSettings } from "@/lib/data";
+import {
+  getDifferentials,
+  getProjects,
+  getSection,
+  type Project,
+} from "@/lib/data";
 import { BotaoLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { Icone } from "@/components/ui/Icone";
+import { DeviceFrame } from "@/components/mockups/DeviceFrame";
+import { LinhaCota } from "@/components/ui/LinhaCota";
+import { MockSite } from "@/components/mockups/MockSite";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
-import { ArkaSymbol } from "@/components/brand/Logo";
 import { HeroBackdrop } from "@/components/sections/hero/HeroBackdrop";
 
+/** O projeto que aparece na moldura: o primeiro desenhado para desktop. */
+function escolherDestaque(projetos: Project[]): Project | undefined {
+  return projetos.find((p) => p.dispositivo === "desktop") ?? projetos[0];
+}
+
+/**
+ * "Gastronomia" -> "um negocio de gastronomia".
+ *
+ * As categorias do portfolio sao areas (Gastronomia, Moda, Saude), nao tipos
+ * de negocio, entao concordancia direta sai torta: "conceito para
+ * Gastronomia". Esta forma serve para todas sem caso especial.
+ */
+function descreverCategoria(categoria: string): string {
+  return `um negócio de ${categoria.toLocaleLowerCase("pt-BR")}`;
+}
+
 export async function Hero() {
-  const [secao, settings, diferenciais, projetos] = await Promise.all([
+  const [secao, diferenciais, projetos] = await Promise.all([
     getSection("hero"),
-    getSiteSettings(),
     getDifferentials(),
     getProjects(),
   ]);
@@ -34,46 +64,34 @@ export async function Hero() {
     | { botaoPrimario?: string; botaoSecundario?: string }
     | undefined;
 
+  const destaque = escolherDestaque(projetos);
+
   /*
-    Faixa de confianca: tres itens em icone + rotulo logo abaixo do botao.
-    E um elemento da propria identidade - os mockups de celular e de notebook
-    do brand board mostram exatamente isso sob a chamada principal. O conteudo
-    reaproveita os diferenciais ja cadastrados, entao o painel continua sendo
-    o dono do texto e nada foi inventado aqui.
+    As tres provas da linha de cota saem dos diferenciais cadastrados no
+    painel. Se o dono renomear um diferencial, a cota acompanha - nada aqui
+    e texto fixo.
   */
-  const provas = diferenciais.slice(0, 3);
+  const provas = diferenciais
+    .slice(0, 3)
+    .map((d) => ({ id: d.id, rotulo: d.titulo }));
 
   return (
     <section
       id="hero"
       className="relative isolate overflow-hidden bg-fundo pb-16 pt-24 sm:pb-24 sm:pt-36 lg:pt-40"
     >
-      {/* Padrao visual de apoio: bloco musgo solido, atras do conteudo,
-          opacidade baixa (ver docs/BRAND.md). Unico padrao desta tela. */}
       <HeroBackdrop />
 
       <Container className="relative">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
-          <Reveal comoLista intervalo={0.08} imediato className="max-w-xl">
-            {/* O simbolo isolado so entra a partir de lg. No celular a logo do
-                cabecalho fica a 70px daqui: repetir a marca duas vezes seguidas
-                so empurrava a proposta de valor para baixo da dobra. */}
-            <RevealItem imediato className="mb-8 hidden lg:block">
-              <ArkaSymbol variante="simples" tamanho={56} alt="" />
-            </RevealItem>
-
-            <RevealItem
-              as="p"
-              imediato
-              className="mb-4 text-rotulo font-semibold uppercase tracking-[0.2em] text-musgo"
-            >
-              {secao.subtitulo ?? settings.tagline}
-            </RevealItem>
-
+        <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
+          {/* ---------------------------------------------------------- */}
+          {/* Texto. Medida limitada para o titulo nao virar faixa larga. */}
+          {/* ---------------------------------------------------------- */}
+          <Reveal comoLista intervalo={0.08} imediato className="max-w-[34rem]">
             <RevealItem
               as="h1"
               imediato
-              className="text-balance font-display text-titulo-lg leading-[1.1] text-grafite sm:text-titulo-2xl lg:text-titulo-3xl"
+              className="text-balance font-display text-titulo-lg font-semibold leading-[1.05] tracking-[-0.03em] text-grafite sm:text-titulo-2xl lg:text-titulo-3xl"
             >
               {secao.titulo}
             </RevealItem>
@@ -82,21 +100,18 @@ export async function Hero() {
               <RevealItem
                 as="p"
                 imediato
-                className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-texto-suave"
+                className="mt-6 text-pretty text-lg leading-relaxed text-texto-suave"
               >
                 {secao.descricao}
               </RevealItem>
             ) : null}
 
-            <RevealItem imediato className="mt-8 flex flex-wrap gap-3">
+            <RevealItem imediato className="mt-9 flex flex-wrap gap-3">
               <BotaoLink href="#contato" tamanho="lg">
                 {conteudo?.botaoPrimario ?? brand.microcopy.botoes.contatoPrimario}
               </BotaoLink>
-              {/*
-                O botao secundario so aponta para o portfolio quando existe
-                portfolio. Sem projeto publicado ele leva aos servicos, que e
-                o proximo passo natural de quem ainda esta se informando.
-              */}
+
+              {/* O secundario so aponta para o portfolio quando ha portfolio. */}
               {projetos.length > 0 ? (
                 <BotaoLink href="#portfolio" variante="secundario" tamanho="lg">
                   {conteudo?.botaoSecundario ?? brand.microcopy.botoes.verPortfolio}
@@ -109,59 +124,61 @@ export async function Hero() {
             </RevealItem>
 
             {provas.length > 0 ? (
-              <RevealItem
-                imediato
-                as="ul"
-                className="mt-8 flex flex-col gap-x-6 gap-y-2.5 border-t border-borda pt-6 sm:flex-row sm:flex-wrap"
-              >
-                {provas.map((prova) => (
-                  <li
-                    key={prova.id}
-                    className="flex items-center gap-2 text-sm font-medium text-grafite"
-                  >
-                    <Icone
-                      nome={prova.icone}
-                      tamanho={18}
-                      className="text-musgo"
-                    />
-                    {prova.titulo}
-                  </li>
-                ))}
+              <RevealItem imediato className="mt-12">
+                <LinhaCota
+                  itens={provas}
+                  aria-label="O que vem em todo projeto"
+                />
               </RevealItem>
             ) : null}
 
-            {/* Terceiro caminho, deliberadamente rebaixado a texto: quem ainda
-                nao sabe o que quer tem para onde ir sem disputar atencao com
-                o botao principal. */}
-            <RevealItem imediato className="mt-6">
+            {/*
+              Terceiro caminho, rebaixado a texto de apoio: quem ainda nao
+              sabe o que quer tem para onde ir sem competir com o botao
+              principal. Sem seta colada no fim - o sublinhado ja o anuncia
+              como link, e a seta era so enfeite.
+            */}
+            <RevealItem imediato className="mt-8">
               <a
                 href="#projeto-guiado"
-                className="inline-flex min-h-11 items-center gap-2 text-sm text-texto-suave transition-colors hover:text-musgo"
+                className="inline-flex min-h-11 items-center text-sm text-texto-suave underline decoration-areia decoration-2 underline-offset-4 transition-colors duration-[180ms] hover:text-musgo hover:decoration-musgo"
               >
                 Ainda não sabe qual formato escolher?
-                <span aria-hidden className="font-medium text-musgo">→</span>
               </a>
             </RevealItem>
           </Reveal>
 
-          {/* Visual de apoio em telas grandes: o simbolo em destaque, numa
-              moldura circular. Em telas pequenas o simbolo do cabecalho ja
-              basta - evita disputar espaco com o texto. */}
-          <Reveal
-            variante="escala"
-            delay={0.3}
-            as="div"
-            className="hidden lg:flex lg:items-center lg:justify-center"
-          >
-            <div className="relative flex h-72 w-72 items-center justify-center rounded-full bg-areia-claro ring-1 ring-borda lg:h-80 lg:w-80">
-              <ArkaSymbol
-                variante="simples"
-                tamanho={160}
-                alt=""
-                className="arka-logo-flutuante"
-              />
+          {/* ---------------------------------------------------------- */}
+          {/* O produto. Unico elemento animado da pagina inteira.        */}
+          {/* ---------------------------------------------------------- */}
+          {destaque ? (
+            <div className="hidden lg:block">
+              {/*
+                Regua de construcao: uma cota que mede a largura da peca
+                abaixo dela. Mesmo vocabulario da <LinhaCota /> do texto, e
+                vem da propria identidade - o brand board constroi o simbolo
+                sobre grade e compasso. Decorativa, fora da arvore de
+                acessibilidade.
+              */}
+              <div aria-hidden className="arka-regua mb-5 flex items-center gap-2">
+                <span className="h-2 w-px bg-musgo" />
+                <span className="h-px flex-1 bg-areia" />
+                <span className="h-2 w-px bg-musgo" />
+              </div>
+
+              <div className="arka-moldura">
+                <DeviceFrame dispositivo="desktop">
+                  <MockSite projeto={destaque} />
+                </DeviceFrame>
+              </div>
+
+              <p className="mt-5 text-sm text-texto-suave">
+                {destaque.isConcept
+                  ? `Conceito criado pela ARKA para ${descreverCategoria(destaque.categoria)}.`
+                  : `${destaque.nome}, ${destaque.categoria.toLocaleLowerCase("pt-BR")}.`}
+              </p>
             </div>
-          </Reveal>
+          ) : null}
         </div>
       </Container>
     </section>

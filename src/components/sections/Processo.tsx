@@ -83,7 +83,9 @@ function EtapaCard({ etapa }: { etapa: ProcessStep }) {
         </span>
         <Icone nome={etapa.icone} tamanho={20} className="text-salvia" />
       </div>
-      <h3 className="mt-5 font-display text-lg text-grafite">{etapa.titulo}</h3>
+      <h3 className="mt-5 font-display text-lg font-semibold tracking-[-0.01em] text-grafite">
+        {etapa.titulo}
+      </h3>
       <p className="mt-2 text-sm leading-relaxed text-texto-suave">
         {etapa.descricao}
       </p>
