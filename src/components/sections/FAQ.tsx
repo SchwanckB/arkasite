@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 /** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
 type FundoSecao = "claro" | "alternado";
 
-export async function FAQ({ fundo = "alternado" }: { fundo?: FundoSecao } = {}) {
+export async function FAQ({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
   const [section, questions] = await Promise.all([
     getSection("faq"),
     getFaq(),

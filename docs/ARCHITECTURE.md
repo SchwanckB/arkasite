@@ -164,7 +164,12 @@ Tudo abaixo já existe. **Reutilize em vez de recriar.**
 | `<Section id fundo espaco largura semContainer>` | Envelope de seção: fundo, espaçamento, âncora |
 | `<SectionHeading sobretitulo titulo descricao alinhamento invertido nivel>` | Cabeçalho padrão de seção |
 
-`fundo` aceita `claro`, `alternado`, `escuro`, `musgo`.
+`fundo` aceita `claro`, `alternado`, `escuro`, `musgo`. **O site público usa
+só `claro`** — ver docs/BRAND.md, seção 7.
+
+**Portfólio:** a seção só é renderizada quando `getProjects()` devolve pelo
+menos um projeto publicado. O item do menu, o link do rodapé e o botão
+secundário do hero seguem a mesma condição — se mexer em um, mexa nos quatro.
 Em `escuro` e `musgo`, passe `invertido` para o `SectionHeading` e use as
 variantes de logo para fundo escuro.
 

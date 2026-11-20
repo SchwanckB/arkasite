@@ -8,7 +8,13 @@ type SectionProps = {
   /** Ancora usada pelo menu (ex.: "servicos" vira href="#servicos"). */
   id?: string;
   className?: string;
-  /** Fundo da secao. Alterne entre secoes para criar ritmo. */
+  /**
+   * Fundo da secao.
+   *
+   * O site publico usa "claro" do comeco ao fim: o dono pediu off-white em
+   * toda a pagina (20/11/2026). "alternado" continua disponivel, mas nao e
+   * usado - nao reintroduza sem combinar.
+   */
   fundo?: "claro" | "alternado" | "escuro" | "musgo";
   /** Espacamento vertical. */
   espaco?: "normal" | "compacto" | "amplo";

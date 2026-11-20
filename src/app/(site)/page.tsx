@@ -10,94 +10,64 @@ import { ProjetoGuiado } from "@/components/sections/ProjetoGuiado";
 import { Processo } from "@/components/sections/Processo";
 import { Servicos } from "@/components/sections/Servicos";
 import { Sobre } from "@/components/sections/Sobre";
-import { getSections, type SectionId } from "@/lib/data";
-
-type Fundo = "claro" | "alternado";
+import { getProjects, getSections, type SectionId } from "@/lib/data";
 
 /**
- * Secoes de fundo fixo, que nao entram na alternancia:
- * - hero: sempre claro, abre a pagina;
- * - cta: a unica faixa musgo do site, como manda docs/BRAND.md.
+ * Qual componente responde por cada secao cadastrada.
+ *
+ * Todas as secoes de conteudo ficam em off-white: o fundo e o mesmo do
+ * comeco ao fim da pagina. A separacao entre elas vem do respiro vertical e
+ * do cabecalho de secao, nao de faixas de cor. A unica cor cheia e a faixa
+ * musgo da chamada, como manda docs/BRAND.md.
  */
-const FUNDO_FIXO: Partial<Record<SectionId, true>> = { hero: true, cta: true };
-
-/** Monta a secao pedida ja com o fundo que o ritmo calculou. */
-function montar(id: SectionId, fundo: Fundo): ReactNode {
+function montar(id: SectionId): ReactNode {
   switch (id) {
     case "hero":
       return <Hero />;
     case "sobre":
-      return <Sobre fundo={fundo} />;
+      return <Sobre />;
     case "diferenciais":
-      return <Diferenciais fundo={fundo} />;
+      return <Diferenciais />;
     case "servicos":
-      return <Servicos fundo={fundo} />;
+      return <Servicos />;
     case "processo":
-      return <Processo fundo={fundo} />;
+      return <Processo />;
     case "portfolio":
-      return <Portfolio fundo={fundo} />;
+      return <Portfolio />;
     case "faq":
-      return <FAQ fundo={fundo} />;
+      return <FAQ />;
     case "cta":
       return <CTA />;
     case "contato":
-      return <Contato fundo={fundo} />;
+      return <Contato />;
   }
-}
-
-type Ritmo = { fundo: Fundo; fundoGuiado: Fundo };
-
-/**
- * Calcula o fundo de cada secao antes de renderizar.
- *
- * O ritmo claro/areia e decidido AQUI, e nao dentro de cada componente, para
- * sobreviver ao painel: se o dono esconde "Sobre" ou troca a ordem das
- * secoes, a alternancia se recalcula sozinha. Antes o fundo estava fixo em
- * cada arquivo e quatro faixas de areia acabavam coladas no meio da pagina,
- * achatando a leitura justamente onde fica o portfolio.
- *
- * Comeca em 1 porque o hero ja ocupa o degrau "claro": a primeira secao
- * alternavel precisa cair em areia para o contraste aparecer.
- */
-function calcularRitmo(ids: readonly SectionId[]): Map<SectionId, Ritmo> {
-  const ritmo = new Map<SectionId, Ritmo>();
-  let passo = 1;
-
-  for (const id of ids) {
-    const fixo = Boolean(FUNDO_FIXO[id]);
-    const fundo: Fundo = fixo || passo % 2 === 0 ? "claro" : "alternado";
-    if (!fixo) passo += 1;
-
-    // O projeto guiado nao e uma secao cadastrada: ele acompanha Servicos,
-    // entao consome o proximo degrau da alternancia.
-    const fundoGuiado: Fundo = passo % 2 === 0 ? "claro" : "alternado";
-    if (id === "servicos") passo += 1;
-
-    ritmo.set(id, { fundo, fundoGuiado });
-  }
-
-  return ritmo;
 }
 
 export default async function Home() {
-  const sections = await getSections();
-  const ritmo = calcularRitmo(sections.map((section) => section.id));
+  const [sections, projetos] = await Promise.all([
+    getSections(),
+    getProjects(),
+  ]);
+
+  /*
+    Sem projeto publicado no painel, a secao de portfolio nao entra na
+    pagina - nem como bloco vazio, nem como ancora no menu. Um portfolio
+    anunciado e vazio conta contra a marca; melhor nao existir.
+  */
+  const temPortfolio = projetos.length > 0;
+  const visiveis = sections.filter(
+    (section) => section.id !== "portfolio" || temPortfolio,
+  );
 
   return (
     <>
-      {sections.map((section) => {
-        const { fundo, fundoGuiado } = ritmo.get(section.id) ?? {
-          fundo: "claro" as const,
-          fundoGuiado: "claro" as const,
-        };
-
-        return (
-          <div key={section.id}>
-            {montar(section.id, fundo)}
-            {section.id === "servicos" ? <ProjetoGuiado fundo={fundoGuiado} /> : null}
-          </div>
-        );
-      })}
+      {visiveis.map((section) => (
+        <div key={section.id}>
+          {montar(section.id)}
+          {/* O projeto guiado nao e uma secao cadastrada: acompanha Servicos. */}
+          {section.id === "servicos" ? <ProjetoGuiado /> : null}
+        </div>
+      ))}
     </>
   );
 }

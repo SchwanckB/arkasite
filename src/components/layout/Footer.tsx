@@ -12,7 +12,7 @@
 import { cacheLife } from "next/cache";
 import Link from "next/link";
 
-import { getServices, getSiteSettings, getTracking } from "@/lib/data";
+import { getProjects, getServices, getSiteSettings, getTracking } from "@/lib/data";
 import { Container } from "@/components/ui/Container";
 import { Icone } from "@/components/ui/Icone";
 import { LinkContato } from "@/components/contato/LinkContato";
@@ -32,12 +32,17 @@ async function getAnoAtual() {
   return new Date().getFullYear();
 }
 
-/** Atalhos de navegacao. Espelha o menu do cabecalho. */
+/**
+ * Atalhos de navegacao. Espelha o menu do cabecalho.
+ *
+ * "Portfólio" so entra quando ha projeto publicado: sem isso a secao nao e
+ * renderizada e o link cairia numa ancora que nao existe.
+ */
 const NAVEGACAO = [
   { href: "/#sobre", rotulo: "Sobre" },
   { href: "/#servicos", rotulo: "Serviços" },
   { href: "/#processo", rotulo: "Processo" },
-  { href: "/#portfolio", rotulo: "Portfólio" },
+  { href: "/#portfolio", rotulo: "Portfólio", exigeProjetos: true },
   { href: "/#faq", rotulo: "Dúvidas" },
   { href: "/#contato", rotulo: "Contato" },
 ];
@@ -49,19 +54,26 @@ const TITULO_COLUNA =
   "text-rotulo font-semibold uppercase tracking-[0.18em] text-musgo";
 
 export async function Footer() {
-  const [settings, servicos, tracking, ano] = await Promise.all([
+  const [settings, servicos, projetos, tracking, ano] = await Promise.all([
     getSiteSettings(),
     getServices(),
+    getProjects(),
     getTracking(),
     getAnoAtual(),
   ]);
+
+  const navegacao = NAVEGACAO.filter(
+    (item) => !item.exigeProjetos || projetos.length > 0,
+  );
 
   const usuarioInstagram = settings.redes.instagram
     ? instagramHandle(settings.redes.instagram)
     : null;
 
   return (
-    <footer className="border-t border-borda bg-fundo-alt py-14">
+    // Off-white como o resto da pagina: o que separa o rodape do conteudo
+    // e a borda superior, nao uma faixa de cor.
+    <footer className="border-t border-borda bg-fundo py-14">
       <Container largura="largo">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:gap-8">
           {/* Marca e assinatura. */}
@@ -76,7 +88,7 @@ export async function Footer() {
           <nav aria-label="Rodapé" className="flex flex-col gap-3">
             <h2 className={TITULO_COLUNA}>Navegação</h2>
             <ul className="flex flex-col gap-0.5">
-              {NAVEGACAO.map((item) => (
+              {navegacao.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={LINK}>
                     {item.rotulo}

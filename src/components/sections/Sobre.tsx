@@ -20,7 +20,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 /** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
 type FundoSecao = "claro" | "alternado";
 
-export async function Sobre({ fundo = "alternado" }: { fundo?: FundoSecao } = {}) {
+export async function Sobre({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
   const [secao, marca] = await Promise.all([getSection("sobre"), getBrand()]);
 
   if (!secao?.visivel) return null;

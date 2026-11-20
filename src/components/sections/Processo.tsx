@@ -29,7 +29,7 @@ import {
 /** Fundo da secao. A pagina alterna claro/areia para dar ritmo. */
 type FundoSecao = "claro" | "alternado";
 
-export async function Processo({ fundo = "alternado" }: { fundo?: FundoSecao } = {}) {
+export async function Processo({ fundo = "claro" }: { fundo?: FundoSecao } = {}) {
   const [secao, etapas] = await Promise.all([
     getSection("processo"),
     getProcessSteps(),

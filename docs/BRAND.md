@@ -273,8 +273,12 @@ deslocamento de layout.
 
 ## 7. Aplicação no site
 
-- Fundo padrão off-white; alterne com `areia-claro` para dar ritmo entre
-  seções. Use musgo ou grafite em no máximo uma ou duas faixas por página.
+- **Fundo off-white do começo ao fim da página** (decisão do dono, 20/11/2026).
+  A alternância com `areia-claro` entre seções foi retirada: a separação vem
+  do respiro vertical e do cabeçalho de seção, não de faixas de cor. A faixa
+  musgo da chamada continua sendo a única cor cheia da página.
+  `<Section fundo="alternado">` ainda existe, mas não é usado — não
+  reintroduza sem combinar.
 - Botão primário: musgo sólido com texto off-white. Secundário: contorno
   musgo. Em fundo escuro, use a variante `claro`.
 - Cartões: fundo branco, borda `borda`, cantos `radius-marca-lg`, sombra só

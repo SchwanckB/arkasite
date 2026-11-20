@@ -12,7 +12,7 @@
  */
 
 import { brand } from "@/content/brand";
-import { getDifferentials, getSection, getSiteSettings } from "@/lib/data";
+import { getDifferentials, getProjects, getSection, getSiteSettings } from "@/lib/data";
 import { BotaoLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { Icone } from "@/components/ui/Icone";
@@ -21,10 +21,11 @@ import { ArkaSymbol } from "@/components/brand/Logo";
 import { HeroBackdrop } from "@/components/sections/hero/HeroBackdrop";
 
 export async function Hero() {
-  const [secao, settings, diferenciais] = await Promise.all([
+  const [secao, settings, diferenciais, projetos] = await Promise.all([
     getSection("hero"),
     getSiteSettings(),
     getDifferentials(),
+    getProjects(),
   ]);
 
   if (!secao?.visivel) return null;
@@ -91,9 +92,20 @@ export async function Hero() {
               <BotaoLink href="#contato" tamanho="lg">
                 {conteudo?.botaoPrimario ?? brand.microcopy.botoes.contatoPrimario}
               </BotaoLink>
-              <BotaoLink href="#portfolio" variante="secundario" tamanho="lg">
-                {conteudo?.botaoSecundario ?? brand.microcopy.botoes.verPortfolio}
-              </BotaoLink>
+              {/*
+                O botao secundario so aponta para o portfolio quando existe
+                portfolio. Sem projeto publicado ele leva aos servicos, que e
+                o proximo passo natural de quem ainda esta se informando.
+              */}
+              {projetos.length > 0 ? (
+                <BotaoLink href="#portfolio" variante="secundario" tamanho="lg">
+                  {conteudo?.botaoSecundario ?? brand.microcopy.botoes.verPortfolio}
+                </BotaoLink>
+              ) : (
+                <BotaoLink href="#servicos" variante="secundario" tamanho="lg">
+                  {brand.microcopy.botoes.verServicos}
+                </BotaoLink>
+              )}
             </RevealItem>
 
             {provas.length > 0 ? (
